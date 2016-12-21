@@ -110,6 +110,7 @@ sub preview {
     $tmpl =~ s/%CMD%/$saveCmd/g;
 
     my $redirectTo = $query->param('redirectto') || '';
+    $redirectTo =~ s/['"]//g if $redirectTo;
     $tmpl =~ s/%REDIRECTTO%/$redirectTo/g;
 
     $formName ||= '';
@@ -141,6 +142,28 @@ sub preview {
     # note: preventing linkage in rendered form can only happen in templates
     # see formtables.tmpl
 
+    my $originalrev = $query->param('originalrev');    # rev edit started on
+    $originalrev =~ s/['"]//g if $originalrev;
+
+    #ASSERT($originalrev ne '%ORIGINALREV%') if DEBUG;
+    $tmpl =~ s/%ORIGINALREV%/$originalrev/g if ( defined($originalrev) );
+
+    my $templatetopic = $query->param('templatetopic');
+    $templatetopic =~ s/['"]//g if $templatetopic;
+
+    #ASSERT($templatetopic ne '%TEMPLATETOPIC%') if DEBUG;
+    $tmpl =~ s/%TEMPLATETOPIC%/$templatetopic/g if ( defined($templatetopic) );
+
+    #this one's worrying, its special, and not set much at all
+    #$tmpl =~ s/%SETTINGSTOPIC%/$settingstopic/g;
+    my $newtopic = $query->param('newtopic');
+    $newtopic =~ s/['"]//g if $newtopic;
+
+    #ASSERT($newtopic ne '%NEWTOPIC%') if DEBUG;
+    $tmpl =~ s/%NEWTOPIC%/$newtopic/g if ( defined($newtopic) );
+
+# CAUTION: Once expandMacros executes, any template tokens that are expanded
+# inside a %ENCODE will be corrupted.  So do token substitution before this point.
     $tmpl = $topicObject->expandMacros($tmpl);
     $tmpl = $topicObject->renderTML($tmpl);
     $tmpl =~ s/%TEXT%/$displayText/g;
@@ -155,23 +178,6 @@ sub preview {
 
     $tmpl =~ s/<\/?(nop|noautolink)\/?>//gis;
 
-    # I don't know _where_ these should be done,
-    # so I'll do them as late as possible
-    my $originalrev = $query->param('originalrev');    # rev edit started on
-         #ASSERT($originalrev ne '%ORIGINALREV%') if DEBUG;
-    $tmpl =~ s/%ORIGINALREV%/$originalrev/g if ( defined($originalrev) );
-
-    my $templatetopic = $query->param('templatetopic');
-
-    #ASSERT($templatetopic ne '%TEMPLATETOPIC%') if DEBUG;
-    $tmpl =~ s/%TEMPLATETOPIC%/$templatetopic/g if ( defined($templatetopic) );
-
-    #this one's worrying, its special, and not set much at all
-    #$tmpl =~ s/%SETTINGSTOPIC%/$settingstopic/g;
-    my $newtopic = $query->param('newtopic');
-
-    #ASSERT($newtopic ne '%NEWTOPIC%') if DEBUG;
-    $tmpl =~ s/%NEWTOPIC%/$newtopic/g if ( defined($newtopic) );
 ###
     $session->writeCompletePage($tmpl);
 }

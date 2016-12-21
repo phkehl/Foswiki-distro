@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Foswiki $ld\n"
 "Report-Msgid-Bugs-To: foswiki-svn@lists.sourceforge.net\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-15 01:45+0200\n"
+"PO-Revision-Date: 2016-11-14 21:19+0200\n"
 "Last-Translator: Vadim Belman <vrurg@lflat.org>\n"
 "Language-Team: <translation@linux.org.ua>\n"
 "Language: uk\n"
@@ -652,9 +652,8 @@ msgid "Access keys:"
 msgstr "Швидкі клавіші:"
 
 #: core/data/System/PendingRegistrationsTemplate.txt:38
-#, fuzzy
 msgid "Access to pending registrations is restricted to administrators"
-msgstr "Ваша реєстрація очікує на підтвердження від адміністраторів системи."
+msgstr "Тільки адміністратори мають доступ до відкладених реєстрацій"
 
 #: core/templates/attachtables.tmpl:4 core/templates/attachtables.tmpl:43
 #: core/templates/changeform.tmpl:9
@@ -822,7 +821,7 @@ msgstr ""
 
 #: core/data/System/PendingRegistrationsTemplate.txt:22
 msgid "Approve"
-msgstr ""
+msgstr "Підтвердити"
 
 #: core/templates/viewtopicactionbuttons.tmpl:69
 msgid "Attach"
@@ -1022,7 +1021,7 @@ msgstr ""
 #: EditTablePlugin/lib/Foswiki/Plugins/EditTablePlugin/Core.pm:987
 #: JQueryPlugin/data/System/JQueryButton.txt:27
 #: JQueryPlugin/data/System/JQuerySimpleModal.txt:104
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:176
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:166
 #: JQueryPlugin/data/System/JQueryUIDialog.txt:51
 #: JQueryPlugin/data/System/VarBUTTON.txt:33
 #: JQueryPlugin/data/System/VarBUTTON.txt:43
@@ -1236,7 +1235,7 @@ msgstr "Колір %1 має неправильний формат"
 msgid "Columns"
 msgstr "Стовпчики"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:159
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:151
 msgid "Come on in"
 msgstr "Давай, заходь"
 
@@ -2257,7 +2256,7 @@ msgstr "Якщо маєте питання то зв'яжіться, будь л
 msgid "If you have any questions, please contact %1."
 msgstr "Якщо у Вас є будь які питання, будь ласка, пишіть %1."
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:256
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:263
 #: core/templates/registernotify.tmpl:26
 msgid "If you haven't set a password yet or you want to reset it, go to: %1"
 msgstr "Якщо Ви не задали пароль або хочете його скинути, перейдіть до %1"
@@ -2651,7 +2650,7 @@ msgstr "Увійдіть щоб продовжити."
 msgid "Log on to %1"
 msgstr "Увійти до %1"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:148
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:140
 #: core/templates/foswiki.tmpl:20
 msgid "Login"
 msgstr "Увійти"
@@ -2818,7 +2817,7 @@ msgstr "Ім'я копії"
 msgid "Name of new web is missing"
 msgstr "Відсутнє ім'я нового розділу"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:151
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:143
 msgid "Name:"
 msgstr "Ім'я:"
 
@@ -2826,7 +2825,7 @@ msgstr "Ім'я:"
 msgid "Navigate to a similar topic"
 msgstr "Перейти до схожої теми"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:160
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:152
 msgid "Never mind"
 msgstr "Проїхали"
 
@@ -2963,7 +2962,7 @@ msgstr ""
 "переміщення."
 
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:16
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:254
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:261
 #: core/templates/messages.tmpl:241 core/templates/registerconfirm.tmpl:14
 #: core/templates/registermessages.tmpl:84
 #: core/templates/registernotify.tmpl:23
@@ -3030,7 +3029,7 @@ msgstr "Гаразд"
 msgid "OK, this is still me!"
 msgstr "Гаразд, це все ще я!"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:175
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:165
 #: JQueryPlugin/data/System/JQueryUIDialog.txt:50
 msgid "Ok"
 msgstr "Гаразд"
@@ -3139,7 +3138,7 @@ msgstr "Не вдалося скинути пароль"
 msgid "Password reset failed."
 msgstr "Не вдалося скинути пароль."
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:155
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:147
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:38
 msgid "Password:"
 msgstr "Пароль:"
@@ -3153,9 +3152,8 @@ msgid "Passwords do not match"
 msgstr "Паролі не співпадають"
 
 #: core/data/System/PendingRegistrations.txt:2
-#, fuzzy
 msgid "Pending Registrations"
-msgstr "Очікувана реєстрація не знайдена"
+msgstr "Відкладені реєстрації"
 
 #: core/templates/registermessages.tmpl:41
 msgid "Pending registration not found"
@@ -3482,12 +3480,11 @@ msgstr ""
 
 #: core/data/System/PendingRegistrations.txt:3
 msgid "Registrations awaiting Email verification"
-msgstr ""
+msgstr "Реєстрації, що очікують на перевірку Email"
 
 #: core/data/System/PendingRegistrations.txt:7
-#, fuzzy
 msgid "Registrations awaiting approval"
-msgstr "%1 потребує підтвердження реєстрації"
+msgstr "Реєстрації, що очікують на підтвердження"
 
 #: core/data/System/WebSearch.txt:201
 msgid "Regular expression search"
@@ -3495,7 +3492,7 @@ msgstr "Пошук з регулярними виразами"
 
 #: core/data/System/PendingRegistrationsTemplate.txt:23
 msgid "Reject"
-msgstr ""
+msgstr "Відмовити"
 
 #: core/data/System/UserName.txt:44
 msgid "Related Topics for Administrators:"
@@ -3997,7 +3994,7 @@ msgstr "Підпис"
 msgid "Size"
 msgstr "Розмір"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:247
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:254
 #: core/templates/registernotify.tmpl:16
 msgid "Some add schedule information and vacation notice."
 msgstr "Деякі додають зведення про свій розклад та повідомлення про відпустки."
@@ -4016,7 +4013,7 @@ msgstr ""
 "запит двічі коли ви клікаєте на посилання. Якщо Ви це вже зробили, то "
 "ймовірно, що насправді Вас *вже* зареєстровано."
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:246
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:253
 #: core/templates/registernotify.tmpl:15
 msgid ""
 "Some people turn it into a personal portal with favorite links, what they "
@@ -4103,7 +4100,7 @@ msgstr "Перекреслено"
 msgid "Submit"
 msgstr "Застосувати"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:258
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:265
 #: core/templates/registerfailednotremoved.tmpl:15
 #: core/templates/registerfailedremoved.tmpl:16
 #: core/templates/registernotify.tmpl:19
@@ -5516,7 +5513,7 @@ msgstr ""
 "silver,  gray, white, maroon, red, purple, fuchsia, green, lime, olive, "
 "yellow, navy, blue, teal или aqua)"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:255
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:262
 #: core/templates/registernotify.tmpl:25
 msgid "You can change your password at via %1"
 msgstr "Ви можете змінити свій пароль за допомогою %1"
@@ -5530,6 +5527,8 @@ msgid ""
 "You can use the \"approve\" or \"reject\" links to approve or reject these "
 "registrations"
 msgstr ""
+"Використовуйте посилання \"підтвердити\" або \"відмовити\" для відповідних "
+"дій над цими реєстраціями"
 
 #: core/templates/registermessages.tmpl:423
 #: core/templates/registermessages.tmpl:429
@@ -5694,7 +5693,7 @@ msgstr "Ваш пароль має бути щонайменше %1 символ
 msgid "Your password:"
 msgstr "Ваш пароль:"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:244
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:251
 #: core/templates/registernotify.tmpl:13
 msgid ""
 "Your personal %1 topic is located at %2. You can customize it as you like:"

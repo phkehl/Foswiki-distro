@@ -7,10 +7,10 @@ msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: foswiki-svn@lists.sourceforge.net\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-04-25 14:25+0200\n"
+"PO-Revision-Date: 2016-12-15 07:57+0200\n"
 "Last-Translator: Guido Brugnara <gdo@leader.it>\n"
-"Language-Team: Italian <http://translate.foswiki.org/projects/foswiki/"
-"distribution-master/it/>\n"
+"Language-Team: Italian <http://translate.foswiki.org/projects/foswiki"
+"/distribution-master/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -625,11 +625,13 @@ msgstr ""
 #: core/data/System/TopicDoesNotExistViewTemplate.txt:21
 msgid "A topic with this name did exist, but has been renamed or moved to %1."
 msgstr ""
-"Una pagina con questo nome esisteva ma è stata rinominata o spostata in %1."
+"Una pagina con questo nome esisteva, ma è stata rinominata o spostata in %1."
 
 #: core/templates/registerapprove.tmpl:9
 msgid "A user requires your approval to complete their registration"
-msgstr "Un utente richiede la tua approvazione per completare la registrazione"
+msgstr ""
+"Un utente richiede la tua approvazione per completare la propria "
+"registrazione"
 
 #: core/data/System/WebSearch.txt:89
 msgid "A-Z"
@@ -637,7 +639,7 @@ msgstr "A-Z"
 
 #: NatEditPlugin/templates/edittoolbar.natedit.tmpl:191
 msgid "Abandon changes and exit"
-msgstr "Annulla le modifiche ed esce"
+msgstr "Annulla le modifiche ed esci"
 
 #: core/templates/oopsaccessdenied.tmpl:6
 msgid "Access Denied"
@@ -657,11 +659,9 @@ msgid "Access keys:"
 msgstr "Tasti di accesso:"
 
 #: core/data/System/PendingRegistrationsTemplate.txt:38
-#, fuzzy
 msgid "Access to pending registrations is restricted to administrators"
 msgstr ""
-"La tua registrazione è in attesa di approvazione da parte degli "
-"amministratori del sistema."
+"L'accesso alle registrazioni in sospeso è consentito ai soli amministratori"
 
 #: core/templates/attachtables.tmpl:4 core/templates/attachtables.tmpl:43
 #: core/templates/changeform.tmpl:9
@@ -677,14 +677,12 @@ msgid "Actions"
 msgstr "Azioni"
 
 #: core/templates/registermessages.tmpl:91
-#, fuzzy
 msgid "Activation Failed"
-msgstr "Codice di attivazione non valido"
+msgstr "Attivazione Fallita"
 
 #: core/templates/registermessages.tmpl:92
-#, fuzzy
 msgid "Activation for code %1 failed with an internal error."
-msgstr "Operazione %1 fallita con un errore interno"
+msgstr "Attivazione per il codice %1 fallita con un errore interno."
 
 #: JQueryPlugin/data/System/JQueryButton.txt:29
 #: PatternSkin/data/System/PatternSkinElements.txt:452
@@ -830,7 +828,7 @@ msgstr ""
 
 #: core/data/System/PendingRegistrationsTemplate.txt:22
 msgid "Approve"
-msgstr ""
+msgstr "Approva"
 
 #: core/templates/viewtopicactionbuttons.tmpl:69
 msgid "Attach"
@@ -1029,7 +1027,7 @@ msgstr ""
 #: EditTablePlugin/lib/Foswiki/Plugins/EditTablePlugin/Core.pm:987
 #: JQueryPlugin/data/System/JQueryButton.txt:27
 #: JQueryPlugin/data/System/JQuerySimpleModal.txt:104
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:176
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:166
 #: JQueryPlugin/data/System/JQueryUIDialog.txt:51
 #: JQueryPlugin/data/System/VarBUTTON.txt:33
 #: JQueryPlugin/data/System/VarBUTTON.txt:43
@@ -1254,7 +1252,7 @@ msgstr "Il colore %1 ha un formato non valido"
 msgid "Columns"
 msgstr "Colonne"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:159
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:151
 msgid "Come on in"
 msgstr "Vieni in"
 
@@ -1761,9 +1759,8 @@ msgid "Emoticon"
 msgstr "Faccina"
 
 #: SlideShowPlugin/templates/view.slideshow.tmpl:26
-#, fuzzy
 msgid "End presentation"
-msgstr "Inizia la presentazione"
+msgstr "Termina la presentazione"
 
 #: PatternSkin/templates/foswiki.pattern.tmpl:83
 msgid "Enlarge edit box"
@@ -2286,7 +2283,7 @@ msgstr "Per qualsiasi richiesta si prega di contattare %1"
 msgid "If you have any questions, please contact %1."
 msgstr "Per qualsiasi richiesta si prega di contattare %1."
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:256
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:263
 #: core/templates/registernotify.tmpl:26
 msgid "If you haven't set a password yet or you want to reset it, go to: %1"
 msgstr "Se non hai già definito una password o vuoi ridefinirla, vai a: %1"
@@ -2685,7 +2682,7 @@ msgstr "Prosegui collegamento."
 msgid "Log on to %1"
 msgstr "Accesso come %1"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:148
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:140
 #: core/templates/foswiki.tmpl:20
 msgid "Login"
 msgstr "Accesso"
@@ -2852,7 +2849,7 @@ msgstr "Nome della copia"
 msgid "Name of new web is missing"
 msgstr "Manca il nome del nuovo Web"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:151
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:143
 msgid "Name:"
 msgstr "Nome:"
 
@@ -2860,7 +2857,7 @@ msgstr "Nome:"
 msgid "Navigate to a similar topic"
 msgstr "Vai ad una pagina simile"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:160
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:152
 msgid "Never mind"
 msgstr "Non importa"
 
@@ -2999,7 +2996,7 @@ msgstr ""
 "all'allegato risulterà interrotto."
 
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:16
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:254
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:261
 #: core/templates/messages.tmpl:241 core/templates/registerconfirm.tmpl:14
 #: core/templates/registermessages.tmpl:84
 #: core/templates/registernotify.tmpl:23
@@ -3067,7 +3064,7 @@ msgstr "OK"
 msgid "OK, this is still me!"
 msgstr "OK, ancora io!"
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:175
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:165
 #: JQueryPlugin/data/System/JQueryUIDialog.txt:50
 msgid "Ok"
 msgstr "Ok"
@@ -3178,7 +3175,7 @@ msgstr "Azzeramento della password fallito"
 msgid "Password reset failed."
 msgstr "Azzeramento della password fallito."
 
-#: JQueryPlugin/data/System/JQueryUIDialog.txt:155
+#: JQueryPlugin/data/System/JQueryUIDialog.txt:147
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:38
 msgid "Password:"
 msgstr "Password:"
@@ -3192,9 +3189,8 @@ msgid "Passwords do not match"
 msgstr "Le password non corrispondono"
 
 #: core/data/System/PendingRegistrations.txt:2
-#, fuzzy
 msgid "Pending Registrations"
-msgstr "Resistrazione pendente non trovata"
+msgstr "Registrazioni Pendenti"
 
 #: core/templates/registermessages.tmpl:41
 msgid "Pending registration not found"
@@ -3524,12 +3520,11 @@ msgstr ""
 
 #: core/data/System/PendingRegistrations.txt:3
 msgid "Registrations awaiting Email verification"
-msgstr ""
+msgstr "Le iscrizioni in attesa di verifica E-mail"
 
 #: core/data/System/PendingRegistrations.txt:7
-#, fuzzy
 msgid "Registrations awaiting approval"
-msgstr "La registrazione %1 richiede approvazione"
+msgstr "Registrazioni in attesa di approvazione"
 
 #: core/data/System/WebSearch.txt:201
 msgid "Regular expression search"
@@ -3537,7 +3532,7 @@ msgstr "Ricerca via espressioni regolari"
 
 #: core/data/System/PendingRegistrationsTemplate.txt:23
 msgid "Reject"
-msgstr ""
+msgstr "Rifiuta"
 
 #: core/data/System/UserName.txt:44
 msgid "Related Topics for Administrators:"
@@ -4044,7 +4039,7 @@ msgstr "Firma"
 msgid "Size"
 msgstr "Dimensione"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:247
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:254
 #: core/templates/registernotify.tmpl:16
 msgid "Some add schedule information and vacation notice."
 msgstr ""
@@ -4064,7 +4059,7 @@ msgstr ""
 "richiesta due volte quando selezioni un link. Se lo hai fatto è possibile "
 "che la registrazione *abbia* avuto successo."
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:246
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:253
 #: core/templates/registernotify.tmpl:15
 msgid ""
 "Some people turn it into a personal portal with favorite links, what they "
@@ -4154,7 +4149,7 @@ msgstr "Barrato"
 msgid "Submit"
 msgstr "Invia"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:258
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:265
 #: core/templates/registerfailednotremoved.tmpl:15
 #: core/templates/registerfailedremoved.tmpl:16
 #: core/templates/registernotify.tmpl:19
@@ -4385,13 +4380,12 @@ msgstr ""
 "essere rinominato (aggiungendo un numero al nome)."
 
 #: core/templates/renameattachmentdelete.tmpl:43
-#, fuzzy
 msgid ""
 "The attachment may have to be renamed if an attachment called '%1' already "
 "exists in the target topic."
 msgstr ""
-"L'allegato può essere rinominato se un allegato chiamato '%FILENAME%' esiste "
-"già nella pagina di destinazione."
+"L'allegato verrà rinominato se un allegato con nome '%1' già esiste nella "
+"pagina di destinazione."
 
 #: core/data/System/FAQWhyYouAreAskedToConfirm.txt:6
 msgid ""
@@ -4535,7 +4529,7 @@ msgstr "Utente collegato con il nome"
 
 #: core/templates/messages.tmpl:111
 msgid "The new parent web (%1) may not be the same as the old or new web name."
-msgstr "Il nuovo genitore Web (%1) pon può essere uguale al precedente."
+msgstr "Il nuovo Web padre (%1) non può avere lo stesso nome del precedente."
 
 #: core/templates/moveattachment.tmpl:24
 msgid "The new topic chosen must already exist."
@@ -4737,6 +4731,8 @@ msgid ""
 "This is an internal error.  You can try to register again, or contact %1 to "
 "report the error."
 msgstr ""
+"Si è verificato un errore interno. Puoi provare a registrarti di nuovo, o "
+"puoi contattare %1 per segnalare l'errore."
 
 #: TopicUserMappingContrib/data/System/UserRegistrationParts.txt:128
 msgid "This is not a valid WikiName."
@@ -4867,8 +4863,8 @@ msgid ""
 "To display the above search results in a topic, copy-paste the following "
 "markup:"
 msgstr ""
-"Per visualizzare i risultati della ricerca di cui sopra in una pagina, copia-"
-"incolla il seguente codice:"
+"Per visualizzare i risultati della ricerca di cui sopra in una pagina, copia "
+"e incolla il seguente codice:"
 
 #: core/templates/oopsleaseconflict.tmpl:20
 msgid "To edit the topic anyway, click "
@@ -5583,7 +5579,7 @@ msgstr ""
 "white, maroon, red, purple, fuchsia, green, lime, olive, yellow, navy, blue, "
 "teal, or aqua)"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:255
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:262
 #: core/templates/registernotify.tmpl:25
 msgid "You can change your password at via %1"
 msgstr "Puoi cambiare la password utilizzando %1"
@@ -5597,6 +5593,8 @@ msgid ""
 "You can use the \"approve\" or \"reject\" links to approve or reject these "
 "registrations"
 msgstr ""
+"Per approvare o respingere queste registrazioni, usare rispettivamente i "
+"link \"Approva\" o \"Respingi\" "
 
 #: core/templates/registermessages.tmpl:423
 #: core/templates/registermessages.tmpl:429
@@ -5770,7 +5768,7 @@ msgstr "Questo sito richiede password di almeno %1 caratteri."
 msgid "Your password:"
 msgstr "La tua password:"
 
-#: TopicUserMappingContrib/data/System/ManagingUsers.txt:244
+#: TopicUserMappingContrib/data/System/ManagingUsers.txt:251
 #: core/templates/registernotify.tmpl:13
 msgid ""
 "Your personal %1 topic is located at %2. You can customize it as you like:"
