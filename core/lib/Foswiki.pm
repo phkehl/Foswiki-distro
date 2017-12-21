@@ -211,8 +211,8 @@ BEGIN {
 
     # DO NOT CHANGE THE FORMAT OF $VERSION.
     # Use $RELEASE for a descriptive version.
-    use version 0.77; $VERSION = version->declare('v2.1.3');
-    $RELEASE = 'Foswiki-2.1.3';
+    use version 0.77; $VERSION = version->declare('v2.1.4_002');
+    $RELEASE = 'Foswiki-2.1.5-Beta2';
 
     # Default handlers for different %TAGS%
     # Where an entry is set as 'undef', the tag will be demand-loaded
@@ -1105,8 +1105,9 @@ sub generateHTTPHeaders {
     # use our version of the content type
     $hopts->{'Content-Type'} = $contentType;
 
-    $hopts->{'X-FoswikiAction'} = $this->{request}->action;
-    $hopts->{'X-FoswikiURI'}    = $this->{request}->uri;
+    # These headers don't appear to be used, and can leak stuff.
+    $hopts->{'X-FoswikiAction'} = $this->{request}->action if DEBUG;
+    $hopts->{'X-FoswikiURI'}    = $this->{request}->uri    if DEBUG;
 
     # Turn off XSS protection in DEBUG so it doesn't mask problems
     $hopts->{'X-XSS-Protection'} = 0 if DEBUG;
@@ -1940,8 +1941,13 @@ sub new {
     if ( $Foswiki::cfg{Cache}{Enabled} && $Foswiki::cfg{Cache}{Implementation} )
     {
         eval "require $Foswiki::cfg{Cache}{Implementation}";
-        ASSERT( !$@, $@ ) if DEBUG;
-        $this->{cache} = $Foswiki::cfg{Cache}{Implementation}->new();
+        if ($@) {    # The require failed - Be graceful in failure
+            ASSERT( !$@, $@ ) if DEBUG;
+            $Foswiki::cfg{Cache}{Enabled} = 0;
+        }
+        else {
+            $this->{cache} = $Foswiki::cfg{Cache}{Implementation}->new();
+        }
     }
 
     my $prefs = new Foswiki::Prefs($this);

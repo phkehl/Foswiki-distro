@@ -20,8 +20,8 @@ use warnings;
 
 use Foswiki::Func ();
 
-our $VERSION           = '1.02';
-our $RELEASE           = '23 Jan 2017';
+our $VERSION           = '1.04';
+our $RELEASE           = '28 Jul 2017';
 our $SHORTDESCRIPTION  = 'Checks Foswiki.org for updates';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;
@@ -37,11 +37,12 @@ sub initPlugin {
       && ( $context->{view} || $context->{rest} );
 
     my $request = Foswiki::Func::getRequestObject();
-    my $cookie;
+    my $outdatedPlugins;
+    $outdatedPlugins = $request->cookie("FOSWIKI_UPDATESPLUGIN") unless TRACE;
 
-    $cookie = $request->cookie("FOSWIKI_UPDATESPLUGIN") unless TRACE;
-
-    return 1 if defined($cookie) && $cookie <= 0;    # 0: DoNothing
+    return 1
+      if defined($outdatedPlugins)
+      && scalar( split( /\s*,\s*/, $outdatedPlugins ) ) <= 0;    # 0: DoNothing
 
     Foswiki::Func::readTemplate("updatesplugin");
 

@@ -482,7 +482,11 @@ $.NatEditor.prototype.initGui = function() {
     onDeselect: updateDetails,
     onClear: updateDetails,
     onReset: updateDetails,
-    autocomplete: self.opts.scriptUrl + "/view/" + self.opts.systemWeb + "/JQueryAjaxHelper?section=user;skin=text;contenttype=application/json"
+    autocomplete: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper', {
+        section: 'user',
+        skin:    'text',
+        contenttype: 'application/json'
+    })
   });
 
   function setPermissionSet(data) {
@@ -537,7 +541,10 @@ $.NatEditor.prototype.switchToWYSIWYG = function(ev) {
 $.NatEditor.prototype.initToolbar = function() {
   var self = this, 
       $txtarea = $(self.txtarea),
-      url = self.opts.scriptUrl+"/rest/JQueryPlugin/tmpl?topic="+self.opts.web+"."+self.opts.topic+"&load="+self.opts.toolbar;
+      url = foswiki.getScriptUrl('rest', "JQueryPlugin", "tmpl", {
+       topic: self.opts.web+"."+self.opts.topic,
+       load:  self.opts.toolbar
+       });
 
   // load toolbar
   $.loadTemplate({
@@ -914,7 +921,7 @@ $.NatEditor.prototype.initForm = function() {
             self.form.submit();
           } else {
             self.form.ajaxSubmit({
-              url: self.opts.scriptUrl + '/rest/NatEditPlugin/save', // SMELL: use this one for REST as long as the normal save can't cope with REST
+              url: foswiki.getScriptUrl( 'rest', 'NatEditPlugin', 'save'),  // SMELL: use this one for REST as long as the normal save can't cope with REST
               beforeSubmit: function() {
                 self.hideMessages();
                 document.title = "Saving ...";
@@ -965,7 +972,7 @@ $.NatEditor.prototype.initForm = function() {
       self.beforeSubmit("preview");
 
       self.form.ajaxSubmit({
-        url: self.opts.scriptUrl + '/rest/NatEditPlugin/save', // SMELL: use this one for REST as long as the normal save can't cope with REST
+        url: foswiki.getScriptUrl( 'rest', 'NatEditPlugin', 'save'),  // SMELL: use this one for REST as long as the normal save can't cope with REST
         beforeSubmit: function() {
           self.hideMessages();
           $.blockUI({
@@ -1704,14 +1711,9 @@ $.NatEditor.prototype.autoMaxExpand = function() {
 $.NatEditor.prototype.fixHeight = function() {
   var self = this,
     elem,
-    windowHeight = $(window).height() || window.innerHeight,
     tmceEdContainer = (typeof(tinyMCE) !== 'undefined' && tinyMCE.activeEditor)?$(tinyMCE.activeEditor.contentAreaContainer):null,
-    newHeight,
-    $debug = $("#DEBUG");
-
-  if (typeof(self.bottomHeight) === 'undefined') {
-    self.bottomHeight = $('.natEditBottomBar').outerHeight(true) + parseInt($('.jqTabContents').css('padding-bottom'), 10) * 2 + 2; 
-  }
+    bottomBar = self.form.find(".natEditBottomBar"),
+    newHeight;
 
   if (tmceEdContainer && !tinyMCE.activeEditor.getParam('fullscreen_is_enabled') && tmceEdContainer.is(":visible")) {
     /* resize tinyMCE. */
@@ -1723,11 +1725,16 @@ $.NatEditor.prototype.fixHeight = function() {
     elem = $(self.txtarea);
   }
 
-  newHeight = windowHeight - elem.offset().top - self.bottomHeight - parseInt(elem.css('padding-bottom'), 10) *2 - 2;
-
-  if ($debug.length) {
-    newHeight -= $debug.height();
+  if (!elem || !elem.length) {
+    return;
   }
+
+  newHeight = 
+    (bottomBar.length ? bottomBar.position().top : $(window).height() || window.innerHeight) // bottom position: if there is a bottomBar, take this, otherwise use the window's geometry
+    - elem.position().top // editor's top position
+    - (elem.outerHeight(true) - elem.height()) // elem's padding
+    - (self.container.outerHeight(true) - self.container.height()) // container's padding
+    - 4;
 
   if (self.opts.minHeight && newHeight < self.opts.minHeight) {
     newHeight = self.opts.minHeight;
@@ -1738,10 +1745,10 @@ $.NatEditor.prototype.fixHeight = function() {
   }
 
   if (elem.is(":visible")) {
-    $.log("NATEDIT: fixHeight height=",newHeight);
+    //$.log("fixHeight height=",newHeight,"container.height=",self.container.height());
     elem.height(newHeight);
   } else {
-    $.log("NATEDIT: not fixHeight elem not yet visible");
+    //$.log("not fixHeight elem not yet visible");
   }
 };
 
@@ -1853,7 +1860,12 @@ $.NatEditor.prototype.dialog = function(opts) {
   }
 
   if (typeof(opts.url) === 'undefined' && typeof(opts.name) !== 'undefined') {
-    opts.url = self.opts.scriptUrl+"/rest/JQueryPlugin/tmpl?topic="+self.opts.web+"."+self.opts.topic+"&load=editdialog&name="+opts.name;
+    opts.url = foswiki.getScriptUrl( 'rest', 'JQueryPlugin', 'tmpl', {
+        topic: self.opts.web+"."+self.opts.topic,
+        load:  'editdialog',
+        name:  opts.name
+    });
+
   }
 
   opts = $.extend({}, defaults, opts);
@@ -2284,7 +2296,11 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
 
   $dialog.find("input[name='web']").each(function() {
     $(this).autocomplete({
-      source: self.opts.scriptUrl+"/view/"+self.opts.systemWeb+"/JQueryAjaxHelper?section=web&skin=text&contenttype=application/json"
+      source: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper', {
+         section:     'web',
+         skin:        'text',
+         contenttype: 'application/json'
+      })
     });
   });
 
@@ -2295,7 +2311,7 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
           xhr.abort();
         }
         xhr = $.ajax({
-          url: self.opts.scriptUrl+"/view/"+self.opts.systemWeb+"/JQueryAjaxHelper",
+          url: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper'),
           data: $.extend(request, {
             section: 'topic',
             skin: 'text',
@@ -2328,9 +2344,10 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
           xhr.abort();
         }
         xhr = $.ajax({
-          url: self.opts.scriptUrl+"/rest/NatEditPlugin/attachments",
+          url: foswiki.getScriptUrl('rest', 'NatEditPlugin', 'attachments'),
           data: $.extend(request, {
-            topic: $container.find("input[name='web']").val()+'.'+$container.find("input[name='topic']").val()
+            // The topic autocomplete actually returns the Web.Topic
+            topic: $container.find("input[name='topic']").val()
           }),
           dataType: "json",
           autocompleteRequest: ++requestIndex,
@@ -2369,7 +2386,6 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
       }
     };
   });
-  
 
   if (typeof(data.type) !== 'undefined') {
     tabId = $dialog.find(".jqTab."+data.type).attr("id");

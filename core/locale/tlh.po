@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Foswiki $Id\n"
 "Report-Msgid-Bugs-To: foswiki-svn@lists.sourceforge.net\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-02-10 12:40+0200\n"
+"PO-Revision-Date: 2017-07-18 15:15+0200\n"
 "Last-Translator: Lieven L. Litaer <qephom@gmx.de>\n"
 "Language-Team: none\n"
 "Language: tlh\n"
@@ -74,7 +74,7 @@ msgid "%1 added to the %2 group."
 msgstr "%2 ghomvaD %1 chellu&&#39;."
 
 #. ((                $Foswiki::cfg{AdminUserWikiName}, $Foswiki::cfg{SuperAdminGroup})
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1093
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1103
 msgid "%1 cannot be removed from %2"
 msgstr "%2vo&&#39; %1 teqlaHbe&&#39; vay&&#39;"
 
@@ -203,7 +203,7 @@ msgstr "%1: qarbe&&#39; ghantoH pong (%2) - Deghmey <nop>QaQbe&&#39; ngaS."
 msgid "&Cancel"
 msgstr "&qIl"
 
-#: core/templates/foswiki.tmpl:140
+#: core/templates/foswiki.tmpl:141
 msgid "&History"
 msgstr "qun"
 
@@ -994,12 +994,12 @@ msgstr ""
 "[WebPreferencesDaq]] tuchbogh =ALLOWWEBVIEW= yIteq."
 
 #. ($user)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:906
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:916
 msgid "CHANGE not permitted by %1"
 msgstr "choHmey (CHANGE) chaw&&#39;be&&#39; %1"
 
 #. (( $groupName, $user)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:940
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:950
 msgid "CHANGE not permitted for %1 by %2"
 msgstr "%1 choHmey (CHANGE) chaw&&#39;be&&#39; %2"
 
@@ -1034,7 +1034,7 @@ msgstr ""
 #: core/data/Main/GroupViewTemplate.txt:213
 #: core/data/Main/GroupViewTemplate.txt:240
 #: core/data/System/FAQWhyYouAreAskedToConfirm.txt:38
-#: core/templates/edit.tmpl:46 core/templates/foswiki.tmpl:111
+#: core/templates/edit.tmpl:46 core/templates/foswiki.tmpl:112
 #: core/templates/settings.tmpl:12 core/templates/validate.tmpl:52
 msgid "Cancel"
 msgstr "qIl"
@@ -1762,7 +1762,7 @@ msgstr "qabHom Degh"
 msgid "End presentation"
 msgstr "much rInmoH"
 
-#: PatternSkin/templates/foswiki.pattern.tmpl:83
+#: PatternSkin/templates/foswiki.pattern.tmpl:89
 msgid "Enlarge edit box"
 msgstr "choHwI&&#39; meyrI&&#39; <nop>tInmoH"
 
@@ -2017,7 +2017,7 @@ msgstr "nejwI&&#39;vam choHmey qImchoH"
 msgid "Globe"
 msgstr "yuQ"
 
-#: core/templates/foswiki.tmpl:115 core/templates/messages.tmpl:328
+#: core/templates/foswiki.tmpl:116 core/templates/messages.tmpl:328
 #: core/templates/messages.tmpl:489 core/templates/registermessages.tmpl:385
 msgid "Go back"
 msgstr "chegh"
@@ -2056,7 +2056,7 @@ msgstr "ghItlhmeH pab"
 msgid "Group"
 msgstr "ghom"
 
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:934
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:944
 #: core/lib/Foswiki/UserMapping.pm:351
 msgid "Group does not exist and create not permitted"
 msgstr ""
@@ -2067,7 +2067,7 @@ msgstr ""
 msgid "Group name"
 msgstr "ghom pong"
 
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:880
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:890
 msgid "Group names must end in Group"
 msgstr "ghom pong tlhuQDaq \"Group\" ghItlhnISlu&&#39;"
 
@@ -2108,7 +2108,7 @@ msgstr "&&#39;ay&&#39; pong 5"
 msgid "Heading 6"
 msgstr "&&#39;ay&&#39; pong 6"
 
-#: core/templates/foswiki.tmpl:146
+#: core/templates/foswiki.tmpl:147
 msgid "Hello %1!"
 msgstr "nuqneH, %1?"
 
@@ -2321,8 +2321,8 @@ msgid ""
 "If you want to search for a word in the stop word list, prefix the word with "
 "a plus sign"
 msgstr ""
-"mevmu&&#39; <nop>tetlhDaq mu&&#39; Danej <nop>DaneHchugh vaj mu&&#39; <nop>"
-"tlhopDaq chelwI&&#39; ngutlh yIghItlh"
+"mevmu&&#39; <nop>tetlhDaq mu&&#39; Danej <nop>DaneHchugh vaj mu&&#39; "
+"<nop>tlhopDaq chelwI&&#39; ngutlh yIghItlh"
 
 #: core/templates/messages.tmpl:454
 msgid "If you would like to create this web"
@@ -2333,8 +2333,8 @@ msgid ""
 "If you would like to send an email and give them feedback, please type it "
 "below and hit 'Send mail'"
 msgstr ""
-"<nop>jabbI&&#39;<nop>IDDaq <nop>vuDlIj Daja&&#39; <nop>DaneHchugh, vaj <nop>"
-"bIngDaq &&#39;oH <nop>yIghItlh &&#39;ej 'QIn ngeH' yI&&#39;uy&&#39;"
+"<nop>jabbI&&#39;<nop>IDDaq <nop>vuDlIj Daja&&#39; <nop>DaneHchugh, vaj "
+"<nop>bIngDaq &&#39;oH <nop>yIghItlh &&#39;ej 'QIn ngeH' yI&&#39;uy&&#39;"
 
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:17
 #: TopicUserMappingContrib/data/System/ChangeEmailAddress.txt:59
@@ -2353,7 +2353,7 @@ msgid ""
 "be useful.  Please contact %1 if you are unsure."
 msgstr ""
 
-#: UpdatesPlugin/templates/updatesplugin.tmpl:6
+#: UpdatesPlugin/templates/updatesplugin.tmpl:13
 msgid "Ignore for 7 days"
 msgstr "<nop>qaStaHvIS 7 jaj <nop>buSHa&&#39;"
 
@@ -2746,7 +2746,7 @@ msgstr "Hutlh vangmeH ra&&#39;wI&&#39;"
 msgid "Missing or illegal web name"
 msgstr "Hutlh mIch pong, pagh Qagh &&#39;oH"
 
-#: PatternSkin/templates/foswiki.pattern.tmpl:54
+#: PatternSkin/templates/foswiki.pattern.tmpl:59
 #: PatternSkin/templates/foswiki.pattern01x00.tmpl:41
 msgid "Modify search"
 msgstr "nejwI&&#39; lIS"
@@ -3044,7 +3044,7 @@ msgstr "wanI&&#39; QInmey"
 msgid "Number of changes for each Web"
 msgstr "Hoch mIch choHmey mI&&#39;"
 
-#: PatternSkin/templates/foswiki.pattern.tmpl:53
+#: PatternSkin/templates/foswiki.pattern.tmpl:58
 #: PatternSkin/templates/foswiki.pattern01x00.tmpl:40
 #: PatternSkin/templates/search.pattern.tmpl:23
 #: PatternSkin/templates/search.pattern01x00.tmpl:12
@@ -3066,7 +3066,7 @@ msgstr "OEmbed"
 #: JQueryPlugin/data/System/JQueryButton.txt:26
 #: PatternSkin/data/System/PatternSkinElements.txt:446
 #: core/data/System/FAQWhyYouAreAskedToConfirm.txt:37
-#: core/templates/foswiki.tmpl:113 core/templates/oopsaccessdenied.tmpl:7
+#: core/templates/foswiki.tmpl:114 core/templates/oopsaccessdenied.tmpl:7
 #: core/templates/oopsredirectdenied.tmpl:7 core/templates/oopssaveerr.tmpl:13
 #: core/templates/registermessages.tmpl:334
 #: core/templates/registermessages.tmpl:342
@@ -3303,9 +3303,9 @@ msgid ""
 "Please go back in your browser and choose a topic name that is a [[%SYSTEMWEB"
 "%.WikiWord][WikiWord]] or clear the only-WikiWord box"
 msgstr ""
-"<nop>weQmoQnaQ <nop>nIqHomDaq yIchegh &&#39;ej "
-"[[%SYSTEMWEB%.WikiWord][WikiWord]] rurbogh pong <nop>yIwIv pagh <nop>"
-"WikiWord meyrI&&#39; yIchu&&#39;Ha&&#39;"
+"<nop>weQmoQnaQ <nop>nIqHomDaq yIchegh &&#39;ej [[%SYSTEMWEB%.WikiWord]"
+"[WikiWord]] rurbogh pong <nop>yIwIv pagh <nop>WikiWord meyrI&&#39; "
+"yIchu&&#39;Ha&&#39;"
 
 #: core/templates/messages.tmpl:116 core/templates/messages.tmpl:124
 #: core/templates/messages.tmpl:139 core/templates/messages.tmpl:144
@@ -3487,7 +3487,7 @@ msgstr "labqa&&#39;"
 #: PatternSkin/data/System/PatternSkinThemeFatWillyNavigation.txt:74
 #: PatternSkin/data/System/WebLeftBarLogin.txt:16
 #: TopicUserMappingContrib/data/System/UserRegistrationParts.txt:296
-#: core/templates/foswiki.tmpl:148
+#: core/templates/foswiki.tmpl:149
 msgid "Register"
 msgstr "muv"
 
@@ -4047,7 +4047,7 @@ msgstr "<nop>QaH &&#39;ang"
 msgid "Showing revisions %1 - %2 (out of %3)"
 msgstr "Dotlhmey %1 - %2 &&#39;agh (%3 tu&&#39;lu&&#39;)"
 
-#: PatternSkin/templates/foswiki.pattern.tmpl:83
+#: PatternSkin/templates/foswiki.pattern.tmpl:89
 msgid "Shrink edit box"
 msgstr "choHmeH vey machmoH"
 
@@ -4231,7 +4231,7 @@ msgstr "lutHommey"
 msgid "Superscript"
 msgstr "<nop>DungDaq mu&&#39;mey lan"
 
-#: PatternSkin/templates/foswiki.pattern.tmpl:83
+#: PatternSkin/templates/foswiki.pattern.tmpl:89
 msgid "Switch to monotype or proportional font"
 msgstr "Deghmey choH: monotype/proportional ghap"
 
@@ -4294,8 +4294,8 @@ msgid ""
 "Thank you for registering in the %1 collaboration platform. Please save this "
 "e-mail for future reference."
 msgstr ""
-"%1 Damuvmo&&#39; <nop>maQuchqu&&#39;. De&&#39; potlh <nop>DaSammeH <nop>"
-"QInvam yIpol."
+"%1 Damuvmo&&#39; <nop>maQuchqu&&#39;. De&&#39; potlh <nop>DaSammeH "
+"<nop>QInvam yIpol."
 
 #: core/templates/registerconfirm.tmpl:10
 msgid ""
@@ -4473,8 +4473,8 @@ msgid ""
 "used internally by Foswiki."
 msgstr ""
 "roD lo&&#39;wI&&#39; <nop>ghItlhDaq <nop>QInQuv cha&&#39;lu&&#39;be&&#39;. "
-"<nop>QInQuvlIj Da&&#39;ang <nop>DaneHchugh, vaj pa&&#39; &&#39;oH <nop>"
-"DaghItlhlaHbej. Foswiki Quv <nop>rurnISbe&&#39; Quvvetlh chu&&#39;."
+"<nop>QInQuvlIj Da&&#39;ang <nop>DaneHchugh, vaj pa&&#39; &&#39;oH "
+"<nop>DaghItlhlaHbej. Foswiki Quv <nop>rurnISbe&&#39; Quvvetlh chu&&#39;."
 
 #: core/templates/messages.tmpl:375
 msgid "The entry for user %1 was missing in the password system."
@@ -4491,6 +4491,8 @@ msgid ""
 "The filename you are attempting to upload (%1) contains characters not "
 "supported by the configured encoding (%2)."
 msgstr ""
+"ngutlhmey qab ngaS De&&#39; Dalabbogh pong&&#39;e&&#39; (%1), bIH "
+"lajbe&&#39; ngoq (%2)."
 
 #: core/templates/messages.tmpl:282
 msgid "The following topics are locked for edit, and cannot be moved:"
@@ -4533,12 +4535,12 @@ msgid ""
 "web.  If not provided, the default topic is [[%USERSWEB%.NewUserTemplate]], "
 "or if that does not exist. [[%SYSTEMWEB%.NewUserTemplate]]."
 msgstr ""
-"<nop>QaQHa&&#39; pong <nop>DawIvta&&#39;bogh, pagh ghItlhvetlh "
-"tu&&#39;be&&#39;lu&&#39;. %USERSWEB% mIchDaq lo&&#39;wI&&#39; ghItlh "
-"chu&&#39; &&#39;oHnIS ghantoHghItlh&&#39;e&&#39;.\n"
+"<nop>QaQHa&&#39; pong <nop>DawIvta&&#39;bogh, pagh ghItlhvetlh tu&&#39;"
+"be&&#39;lu&&#39;. %USERSWEB% mIchDaq lo&&#39;wI&&#39; ghItlh chu&&#39; &&#39;"
+"oHnIS ghantoHghItlh&&#39;e&&#39;.\n"
 "pongbe&&#39;lu&&#39;chugh vaj [[%USERSWEB%.NewUserTemplate]] &&#39;oH ghItlh "
-"motlh&&#39;e&&#39;. taHbe&&#39;chugh ghItlhvetlh vaj "
-"[[%SYSTEMWEB%.NewUserTemplate]] &&#39;oH."
+"motlh&&#39;e&&#39;. taHbe&&#39;chugh ghItlhvetlh vaj [[%SYSTEMWEB%."
+"NewUserTemplate]] &&#39;oH."
 
 #: core/data/System/UserName.txt:3
 msgid "The name you log in with"
@@ -4813,7 +4815,7 @@ msgstr "lo&&#39;wI&&#39; pongmey lo&&#39; patvam."
 
 #: core/templates/messages.tmpl:389
 msgid "This system is not configured to support user login. Return to [[%1]]."
-msgstr ""
+msgstr "lo&&#39;wI&&#39; lojmIt lajbe&&#39; patvam. [[%1]]Daq yIchegh."
 
 #: core/templates/viewprint.tmpl:14
 msgid "This topic:"
@@ -4881,7 +4883,7 @@ msgstr ""
 
 #: core/templates/oopsleaseconflict.tmpl:16
 msgid "To see if %1 has finished editing yet, click "
-msgstr ""
+msgstr "%1 choHmey Ser Da&&#39;olmeH, naDev yI&&#39;uy: "
 
 #: core/templates/renamebase.tmpl:29
 msgid "To topic"
@@ -5000,7 +5002,7 @@ msgstr "mIchvam ghItlhmey"
 
 #: core/templates/renamewebbase.tmpl:29
 msgid "Topics which are currently being edited by other users in the %1 Web:"
-msgstr ""
+msgstr "%1 mIchDaq ghItlhmeyvam choH latlh lo&&#39;wI&&#39;pu&&#39;:"
 
 #: core/templates/renamewebbase.tmpl:32
 msgid ""
@@ -5048,7 +5050,7 @@ msgstr "lo&&#39;wI&&#39;, chaw&&#39; ngoq joq ghovbe&&#39;lu&&#39;"
 
 #: core/templates/messages.tmpl:42
 msgid "Unrecognized action command %1"
-msgstr ""
+msgstr "%1 mIw yajbe&&#39;lu&&#39;"
 
 #: core/templates/messages.tmpl:418
 msgid ""
@@ -5090,7 +5092,7 @@ msgstr "%2 tep %1 chu&&#39;moH"
 msgid "Update links"
 msgstr "rarwI&&#39;mey chu&&#39;moH"
 
-#: UpdatesPlugin/templates/updatesplugin.tmpl:5
+#: UpdatesPlugin/templates/updatesplugin.tmpl:12
 #: core/data/Main/GroupViewTemplate.txt:182
 #: core/data/Main/GroupViewTemplate.txt:191
 msgid "Upgrade"
@@ -5125,6 +5127,7 @@ msgstr "%1 KB &&#39;oH jabbI&&#39;ID &&#39;aqroS&&#39;e&&#39;."
 #: core/templates/messages.tmpl:263
 msgid "Uploaded file %1 exceeds limit of %2 KB"
 msgstr ""
+"tlhoy tIn De&&#39; Dalabbogh %1, %2 KB &&#39;oH &&#39;aqroS&&#39;e&&#39;"
 
 #: core/templates/messages.tmpl:262
 msgid "Uploaded file is too big"
@@ -5155,12 +5158,12 @@ msgid ""
 msgstr ""
 
 #. (( $user, $groupName)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1126
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1136
 msgid "User %1 does not have CHANGE permission on %2."
-msgstr ""
+msgstr "%2 choH lo&&#39;wI&&#39; %1 net chaw&&#39;be&&#39;."
 
 #. ($cuid)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1115
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1125
 #: core/lib/Foswiki/UserMapping.pm:371
 msgid "User %1 not in group, cannot be removed"
 msgstr ""
@@ -5208,12 +5211,12 @@ msgid "Users"
 msgstr "lo&&#39;wI&&#39;pu&&#39;"
 
 #. ($Group)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:876
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:886
 msgid "Users cannot be added to %1"
 msgstr "%1Daq lo&&#39;wI&&#39; chellaHbe&&#39; vay&&#39;"
 
 #. ($groupName)
-#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1085
+#: TopicUserMappingContrib/lib/Foswiki/Users/TopicUserMapping.pm:1095
 msgid "Users cannot be removed from %1"
 msgstr "%1vo&&#39; lo&&#39;wI&&#39; teqlaHbe&&#39; vay&&#39;"
 
@@ -5251,7 +5254,7 @@ msgstr "%1 Dotlh qun"
 msgid "View"
 msgstr "&&#39;ang"
 
-#: core/templates/foswiki.tmpl:140
+#: core/templates/foswiki.tmpl:141
 msgid "View complete topic history"
 msgstr "ghItlh qun naQ &&#39;ang"
 
@@ -5321,6 +5324,8 @@ msgstr "Qu&&#39;vatlh: \\'include\\' ghItlh  tu&&#39;lu&&#39;be&&#39;!"
 #: core/templates/messages.tmpl:369
 msgid "Warning: Can't INCLUDE %1 repeatedly, topic is already included. %2"
 msgstr ""
+"yIqIm: cha&&#39;logh %1 vIchellaHbe&&#39;, &&#39;oH chelta&&#39; vay&&#39; "
+"rIntaH. %2"
 
 #: core/templates/messages.tmpl:371
 msgid ""
@@ -5356,7 +5361,8 @@ msgid "Warning: This site does not allow %<nop>INCLUDE% of URLs"
 msgstr "Qu&&#39;vatlh: URL %<nop>INCLUDE% chaw&&#39;be&&#39; weQmoQnaQ Daqvam"
 
 #: UpdatesPlugin/templates/updatesplugin.tmpl:11
-msgid "Warning: Updates found for %1 extension(s)."
+#, fuzzy
+msgid "Warning: Updates found for %1 extension(s): %2"
 msgstr ""
 "Qu&&#39;vatlh: %1 extension(mey)vaD chu&&#39;moHwI&&#39; luSamlu&&#39;."
 
@@ -5780,6 +5786,7 @@ msgid ""
 "Your system may not support changing passwords through Foswiki. Check with "
 "your Wiki administrator."
 msgstr ""
+"chaq FoswikiDaq ngoq De&&#39; DachoHlaHbe&&#39;. loHwI&&#39; yIrI&&#39;."
 
 #: core/templates/registermessages.tmpl:29
 msgid ""
@@ -5945,7 +5952,7 @@ msgid "now %1"
 msgstr "<nop>DaH %1"
 
 #: PatternSkin/data/System/PatternSkinThemeFatWillyNavigation.txt:74
-#: core/templates/changeform.tmpl:12 core/templates/foswiki.tmpl:148
+#: core/templates/changeform.tmpl:12 core/templates/foswiki.tmpl:149
 #: core/templates/moveattachment.tmpl:55 core/templates/preview.tmpl:18
 #: core/templates/rename.tmpl:21 core/templates/renameattachmentdelete.tmpl:25
 #: core/templates/renameconfirm.tmpl:33 core/templates/renamedelete.tmpl:40

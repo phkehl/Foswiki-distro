@@ -431,7 +431,7 @@ $Foswiki::cfg{LoginManager} = 'Foswiki::LoginManager::TemplateLogin';
 # Write debugging output to the webserver error log.
 $Foswiki::cfg{Trace}{LoginManager} = 0;
 
-# **STRING 100 LABEL="Authenticated Scripts" DISPLAY_IF="{LoginManager}=='Foswiki::LoginManager::TemplateLogin'" CHECK="iff:'{LoginManager} =~ /TemplateLogin$/'" CHECK_ON_CHANGE="{LoginManager}" **
+# **STRING 100 LABEL="Authenticated Scripts" CHECK_ON_CHANGE="{LoginManager}" **
 # Comma-separated list of scripts in the bin directory that require the user to
 # authenticate. This setting is used with TemplateLogin; any time an
 # unauthenticated user attempts to access one of these scripts, they will be
@@ -761,11 +761,12 @@ $Foswiki::cfg{AuthRealm} =
 # mod_perl. This option is not compatible with =plain= text passwords.
 $Foswiki::cfg{Htpasswd}{AutoDetect} = $TRUE;
 
-# **NUMBER LABEL="BCrypt Cost" DISPLAY_IF="{PasswordManager}=='Foswiki::Users::HtPasswdUser' && {Htpasswd}{Encoding}=='bcrypt'" CHECK="min:0 iff:'{PasswordManager}=~/:HtPasswdUser/ && {Htpasswd}{Encoding} eq q<bcrypt>'"**
+# **NUMBER LABEL="BCrypt Cost" DISPLAY_IF="{PasswordManager}=='Foswiki::Users::HtPasswdUser' && {Htpasswd}{Encoding}=='bcrypt'" CHECK="min:0 max:99 iff:'{PasswordManager}=~/:HtPasswdUser/ && {Htpasswd}{Encoding} eq q<bcrypt>'"**
 # Specify the cost that should be incurred when computing the hash of a
 # password.  This number should be increased as CPU speeds increase.
 # The iterations of the hash is roughly 2^cost - default is 8, or 256
-# iterations.
+# iterations.  *CAUTION* Larger values than 10 or 12 (1024 and 4096 iterations)
+# can require extreme amounts of CPU time.
 $Foswiki::cfg{Htpasswd}{BCryptCost} = 8;
 
 # **PASSWORD LABEL="Internal Admin Password" CHECK_ON_CHANGE="{FeatureAccess}{Configure}" CHECK="also:{FeatureAccess}{Configure}" ONSAVE**
@@ -1627,7 +1628,7 @@ $Foswiki::cfg{FormTypes} = [
 # This setting will switch on/off caching.
 $Foswiki::cfg{Cache}{Enabled} = $FALSE;
 
-# **SELECTCLASS Foswiki::PageCache::DBI::* DISPLAY_IF="{Cache}{Enabled}" CHECK="iff:'{Cache}{Enabled}'" LABEL="Cache Implementation"**
+# **SELECTCLASS Foswiki::PageCache::DBI::* DISPLAY_IF="{Cache}{Enabled}" CHECK="iff:'{Cache}{Enabled}' also:'{Cache}{Enabled}'" LABEL="Cache Implementation"**
 # Select the cache implementation. The default page cache implementation
 # is based on DBI (http://dbi.perl.org) which requires a working DBI driver to
 # connect to a database. This database will hold all cached data as well as the

@@ -1377,7 +1377,7 @@ sub addUserToGroup {
 
 =begin TML
 
----+++ removeUserFromGroup( $group, $id ) -> $boolean
+---+++ removeUserFromGroup( $id, $group ) -> $boolean
 
    * $id can be a login name or a WikiName
 
