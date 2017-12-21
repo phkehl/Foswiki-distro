@@ -12,6 +12,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
     $Foswiki::cfg{ScriptUrlPath} = '/fatwilly/bin';
+    $Foswiki::cfg{Sessions}{CookieRealm} = 'weebles.wobble';
     delete $Foswiki::cfg{ScriptUrlPaths};
 }
 
@@ -304,6 +305,41 @@ sub test_queryString {
     );
 }
 
+sub test_forwarded_for {
+    my $this = shift;
+    my $req  = new Foswiki::Request("");
+    $req->secure('1');
+    $req->header( Host               => 'myhost.com' );
+    $req->header( 'X-Forwarded-Host' => 'hop1.com,  hop2.com' );
+    $req->action('view');
+    $req->path_info('/Main/WebHome');
+    my $base = 'https://hop1.com';
+    $this->assert_str_equals(
+        $base,
+        $req->url( -base => 1 ),
+        'Wrong BASE url with Forwarded-Host header'
+    );
+    print STDERR $req->url() . "\n";
+
+    $req->header( 'X-Forwarded-Host' => 'onehop.com:8080' );
+    $base = 'https://onehop.com:8080';
+    $this->assert_str_equals(
+        $base,
+        $req->url( -base => 1 ),
+        'Wrong BASE url with Forwarded-Host multiple header'
+    );
+
+    $base = 'http://your.domain.com';
+    $Foswiki::cfg{ForceDefaultUrlHost} = 1;
+    $this->assert_str_equals(
+        $base,
+        $req->url( -base => 1 ),
+        'Wrong BASE url with Forwarded-Host single header + forceDefaultUrlHost'
+    );
+    print STDERR $req->url() . "\n";
+
+}
+
 sub perform_url_test {
     my $this = shift;
     my $req  = new Foswiki::Request("");
@@ -591,11 +627,13 @@ sub test_cookies {
     );
     $result[1] = new CGI::Cookie(
         -name    => 'c3',
+        -domain  => 'weebles.wobble',
         -value   => 'value3',
         -path    => '/test',
         -expires => '1234',
         -secure  => 1
     );
+
     $this->assert_deep_equals( $result[0], $result[1],
         'Wrong returned cookie' );
 }

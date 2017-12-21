@@ -19,6 +19,18 @@ use Foswiki       ();
 use Foswiki::Meta ();
 use Assert;
 
+# Chars that must be encoded in META attr values
+my $must_encode = "%\"\r\n{}";
+
+# Map from char that needs encoding to the hex character number
+my %encode = map { $_ => sprintf( '%02x', ord($_) ) } split( //, $must_encode );
+
+# Map from hex character number to the character
+my %decode;
+while ( my ( $k, $v ) = each %encode ) {
+    $decode{$v} = $k;
+}
+
 =begin TML
 
 ---++ ClassMethod new( $class,  ) -> $cereal
@@ -67,7 +79,7 @@ sub read {
 
     # head meta-data
     # NO THIS CANNOT BE /g - TOPICINFO is _only_ valid as the first line!
-    $text =~ s<^(%META:(TOPICINFO){(.*)}%\n)>
+    $text =~ s<^(%META:(TOPICINFO)\{(.*)\}%\n)>
               <_readMETA($meta, $1, $2, $3, 1)>e;
 
     # WARNING: if the TOPICINFO *looks* valid but has has unrecognisable
@@ -100,7 +112,7 @@ sub read {
     if ( $format !~ /^[\d.]+$/ || $format < 1.1 ) {
         require Foswiki::Compatibility;
         if (
-            $text =~ s/^%META:([^{]+){(.*)}%\n/
+            $text =~ s/^%META:([^{]+)\{(.*)\}%\n/
               Foswiki::Compatibility::readSymmetricallyEncodedMETA(
                   $meta, $1, $2 ); ''/gem
           )
@@ -110,7 +122,7 @@ sub read {
     }
     else {
         if (
-            $text =~ s<^(%META:([^{]+){(.*)}%\n)>
+            $text =~ s<^(%META:([^{]+)\{(.*)\}%\n)>
                       <_readMETA($meta, $1, $2, $3, 0)>gem
           )
         {
@@ -172,10 +184,17 @@ sub read {
 sub _readKeyValues {
     my ($args) = @_;
     my %res;
+    my ( $k, $v );
 
     # Format of data is name='value' name1='value1' [...]
-    $args =~ s/\s*([^=]+)="([^"]*)"/
-      $res{$1} = Foswiki::Meta::dataDecode( $2 ), ''/ge;
+    while ( $args =~ /([a-zA-Z0-9_]+)="(.*?)"/g ) {
+        $k = $1;
+        $v = $2;
+
+        # Shortcut around dataDecode
+        $v =~ s/%([0-9a-fA-F]{2})/$decode{$1}/g;
+        $res{$k} = $v;
+    }
 
     return \%res;
 }
@@ -267,24 +286,34 @@ sub _writeTypes {
 
 =begin TML
 
+---++ StaticMethod dataDecode( $encoded ) -> $decoded
+
+Decode escapes in a string that was encoded using dataEncode
+
+=cut
+
+sub dataDecode {
+    my $datum = shift;
+
+    $datum =~ s/(\%[\da-fA-F]{2})/$decode{$1}/g;
+    return $datum;
+}
+
+=begin TML
+
 ---++ StaticMethod dataEncode( $uncoded ) -> $coded
 
 Encode meta-data field values, escaping out selected characters.
 The encoding is chosen to avoid problems with parsing the attribute
 values in embedded meta-data, while minimising the number of
-characters encoded so searches can still work (fairly) sensibly.
-
-The encoding has to be exported because Foswiki (and plugins) use
-encoded field data in other places e.g. RDiff, mainly as a shorthand
-for the properly parsed meta object. Some day we may be able to
-eliminate that....
+characters encoded so plain-text searches can still work (fairly) sensibly.
 
 =cut
 
 sub dataEncode {
     my $datum = shift;
 
-    $datum =~ s/([%"\r\n{}])/'%'.sprintf('%02x',ord($1))/ge;
+    $datum =~ s/([%"\r\n{}])/\%$encode{$1}/g;
     return $datum;
 }
 

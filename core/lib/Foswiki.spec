@@ -283,7 +283,23 @@ $Foswiki::cfg{Sessions}{IDsInURLs} = 0;
 # If empty, this defaults to the current host.
 $Foswiki::cfg{Sessions}{CookieRealm} = '';
 
-# **BOOLEAN LABEL="Use IP Matching" DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" EXPERT**
+# **STRING 20 LABEL="Cookie Path" EXPERT DISPLAY_IF="{UseClientSessions}" CHECK="undefok emptyok iff:'{UseClientSessions}'"**
+# By default, the foswiki cookies live at the root of the path.  If foswiki shares
+# with other applications on the web server, it may be useful to set this to =/foswiki=
+# or another path appropriate for your site.
+#
+# If empty, the cookie will be at the '/' root.
+$Foswiki::cfg{Sessions}{CookiePath} = '/';
+
+# **STRING 20 LABEL="Cookie Name Prefix" EXPERT DISPLAY_IF="{UseClientSessions}" CHECK="undefok emptyok iff:'{UseClientSessions}'"**
+# With multiple Foswiki installations on the same host, it may be necessary to use unique names
+# for the cookies to avoid collisions.  This is especially true if the CookieRealm has been 
+# configured as a wildcard domain.
+#
+# If empty, no prefix is added.
+$Foswiki::cfg{Sessions}{CookieNamePrefix} = '';
+
+# **BOOLEAN LABEL="Use IP Matching" DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" **
 # Enable this option to prevent a session from being accessed by
 # more than one IP Address. This gives some protection against session
 # hijack attacks.
@@ -300,11 +316,11 @@ $Foswiki::cfg{Sessions}{CookieRealm} = '';
 # IP Matching for security purposes, so it is now enabled by default.
 $Foswiki::cfg{Sessions}{UseIPMatching} = 1;
 
-# **BOOLEAN LABEL="Enable Guest Sessions" DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" EXPERT**
+# **BOOLEAN LABEL="Enable Guest Sessions" DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" **
 # On prior versions of Foswiki, every user is given their own CGI Session.
 # Disable this setting to block creation of session for guest users.
 #
-# This is EXPERIMENTAL.  Some parts of Foswiki will not function without a
+# Note: Some parts of Foswiki will not function without a
 # CGI Session.  This includes scripts that update, and any wiki applications
 # that make use of session variables.
 $Foswiki::cfg{Sessions}{EnableGuestSessions} = 1;
@@ -315,17 +331,6 @@ $Foswiki::cfg{Sessions}{EnableGuestSessions} = 1;
 # Pages. As Foswiki supports custom User Registration topics, the expression is
 # anchored at the end, so that it matches any topic name ending in "Registration".
 $Foswiki::cfg{Sessions}{TopicsRequireGuestSessions} = '(Registration|ResetPassword)$';
-
-# **BOOLEAN LABEL="Map IP to Session ID" EXPERT DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" EXPERT**
-# For compatibility with older versions, Foswiki supports the mapping of the
-# clients IP address to a session ID. You can only use this if all
-# client IP addresses are known to be unique.
-# If this option is enabled, Foswiki will *not* store cookies in the
-# browser.
-# The mapping is held in the file =$Foswiki::cfg{WorkingDir}/tmp/ip2sid=.
-# If you turn this option on, you can safely turn {Sessions}{IDsInURLs}
-# _off_.
-$Foswiki::cfg{Sessions}{MapIP2SID} = 0;
 
 # **OCTAL LABEL="Session-File Permission" CHECK="min:000 max:777" EXPERT**
 # File security for new session objects created by the login manager.
@@ -415,7 +420,7 @@ $Foswiki::cfg{LoginManager} = 'Foswiki::LoginManager::TemplateLogin';
 # Write debugging output to the webserver error log.
 $Foswiki::cfg{Trace}{LoginManager} = 0;
 
-# **STRING 100 LABEL="Authenticated Scripts" DISPLAY_IF="{LoginManager}=='Foswiki::LoginManager::TemplateLogin'" CHECK="iff:'{LoginManager} =~ /TemplateLogin$/'" CHECK_ON_CHANGE="{LoginManager}" **
+# **STRING 100 LABEL="Authenticated Scripts" CHECK_ON_CHANGE="{LoginManager}" **
 # Comma-separated list of scripts in the bin directory that require the user to
 # authenticate. This setting is used with TemplateLogin; any time an
 # unauthenticated user attempts to access one of these scripts, they will be
@@ -444,13 +449,6 @@ $Foswiki::cfg{LegacyRESTSecurity} = $FALSE;
 # password, but only from POST requests. In order to add support for the
 # =rest= and =restauth>> scripts, specify =/^(view|rest)(auth)?$/=
 $Foswiki::cfg{Session}{AcceptUserPwParam} = '^view(auth)?$';
-
-# **BOOLEAN LABEL="Accept User Password on GET" EXPERT**
-# For backwards compatibility, enable this setting if you want
-# =username= and =password= parameters to be accepted on a GET request when
-# provided as part of the query string.  It is more secure to restrict login
-#  operations to POST requests only.
-$Foswiki::cfg{Session}{AcceptUserPwParamOnGET} = $FALSE;
 
 # **BOOLEAN LABEL="Prevent from Remembering the User Password" EXPERT DISPLAY_IF="{LoginManager}=='Foswiki::LoginManager::TemplateLogin'" CHECK="iff:'{LoginManager} =~ /TemplateLogin$/'"**
 # Browsers typically remember your login and passwords to make authentication
@@ -559,6 +557,16 @@ $Foswiki::cfg{TopicUserMapping}{ForceManageEmails} = $FALSE;
 # written to allow anonymous updates.  If an operation does not check
 # for access permission, then it will not get blocked by these controls.
 $Foswiki::cfg{AccessControl} = 'Foswiki::Access::TopicACLAccess';
+
+# **BOOLEAN LABEL="Enable Additive Topic ACLs" EXPERT **
+# Optionally support Addititive Topic ACLs.  Normally ACLs specified at the
+# Topic level override Web level access control.  If this feature is enabled,
+# the "+" plus sign can be used at the Topic level to add to the Web ACLs.
+#
+# If the Web ACL specifies _"ALLOWWEBVIEW = JoeUser"_,  then a Topic ACL of
+# _"ALLOWTOPICVIEW = + FredUser"_ will allow both JoeUser and FredUser
+# to view the topic.
+$Foswiki::cfg{AccessControlACL}{EnableAdditiveRules} = $FALSE;
 
 # **BOOLEAN LABEL="Enable Deprecated Empty Deny" EXPERT **
 # Optionally restore the deprecated empty =DENY= ACL behavior.
@@ -745,11 +753,12 @@ $Foswiki::cfg{AuthRealm} =
 # mod_perl. This option is not compatible with =plain= text passwords.
 $Foswiki::cfg{Htpasswd}{AutoDetect} = $TRUE;
 
-# **NUMBER LABEL="BCrypt Cost" DISPLAY_IF="{PasswordManager}=='Foswiki::Users::HtPasswdUser' && {Htpasswd}{Encoding}=='bcrypt'" CHECK="min:0 iff:'{PasswordManager}=~/:HtPasswdUser/ && {Htpasswd}{Encoding} eq q<bcrypt>'"**
+# **NUMBER LABEL="BCrypt Cost" DISPLAY_IF="{PasswordManager}=='Foswiki::Users::HtPasswdUser' && {Htpasswd}{Encoding}=='bcrypt'" CHECK="min:0 max:99 iff:'{PasswordManager}=~/:HtPasswdUser/ && {Htpasswd}{Encoding} eq q<bcrypt>'"**
 # Specify the cost that should be incurred when computing the hash of a
 # password.  This number should be increased as CPU speeds increase.
 # The iterations of the hash is roughly 2^cost - default is 8, or 256
-# iterations.
+# iterations.  *CAUTION* Larger values than 10 or 12 (1024 and 4096 iterations)
+# can require extreme amounts of CPU time.
 $Foswiki::cfg{Htpasswd}{BCryptCost} = 8;
 
 # **PASSWORD LABEL="Internal Admin Password" CHECK_ON_CHANGE="{FeatureAccess}{Configure}" CHECK="also:{FeatureAccess}{Configure}" ONSAVE**
@@ -871,6 +880,7 @@ $Foswiki::cfg{Register}{EmailFilter} = '';
 # items are quite innocent, it's better to be a bit paranoid.
 $Foswiki::cfg{AccessibleCFG} = [
     '{AccessControlACL}{EnableDeprecatedEmptyDeny}',
+    '{AccessControlACL}{EnableAdditiveRules}',
     '{AccessibleCFG}',
     '{AdminUserLogin}',
     '{AdminUserWikiName}',
@@ -1061,7 +1071,7 @@ $Foswiki::cfg{AccessibleENV} =
 $Foswiki::cfg{AccessibleHeaders} = ['Accept-Language', 'User-Agent'];
 
 #---++ Proxies
-# Some environments require outbound HTTP traffic to go through a proxy
+# Some environments require inbound or outbound HTTP traffic to go through a proxy
 # server (for example http://proxy.your.company).
 
 # **URL 30 LABEL="Proxy Host" CHECK='undefok emptyok parts:scheme,authority,path\
@@ -1073,6 +1083,21 @@ $Foswiki::cfg{AccessibleHeaders} = ['Accept-Language', 'User-Agent'];
 # If your proxy requires authentication, simply put it in the URL, as in:
 # http://username:password@proxy.your.company:8080.
 $Foswiki::cfg{PROXY}{HOST} = undef;
+
+# **STRING 50 LABEL="No Proxy" CHECK="undefok emptyok"**
+# List of domains that are accessed directly instead of going by the proxy.
+$Foswiki::cfg{PROXY}{NoProxy} = '';
+
+# **BOOLEAN LABEL="Client IP" **
+# Foswiki normally uses the REMOTE_ADDRESS as the client IP.  If Foswiki is behind
+# a proxy, Foswiki will see the proxy's address as the Client IP.  Enable this switch if you
+# want foswiki to recover the real Client IP from the =X-Forwarded-For= header. 
+# *Caution:* This header is easily spoofed. Only enable this flag if you are certain that
+# you trust the Proxy server.
+# <p/>
+# Note that this setting also impacts CGI Session IP matching. Changing this setting
+# will break all active sessions behind the proxy and require re-authentication.
+$Foswiki::cfg{PROXY}{UseForwardedForHeader} = $FALSE;
 
 #---++ Anti-spam
 # Foswiki incorporates some simple anti-spam measures to protect
@@ -1098,7 +1123,7 @@ $Foswiki::cfg{AntiSpam}{EmailPadding} = '';
 # emails is not a risk for you (for example, you are behind a firewall) and you
 # are happy for e-mails to be made public to all Foswiki users, then you
 # can disable this option. If you prefer to store email addresses directly
-# in user topics, see the TopicUserMapping expert settings under the
+# in user topics, see the TopicUserMapping expert option under the
 # UserMapping tab.
 # 
 # Note that if this option is set, then the =%USERINFO= macro will only expand
@@ -1456,7 +1481,7 @@ $Foswiki::cfg{Store}{FgrepCmd} =
 # which will block the application of the file and directory permissions.
 # If mod_suexec is enabled, the Apache umask directive will also be ignored.
 # Enable this setting if the checker reports that the umask is in conflict with
-# the permissions, or adust the expert settings {Store}{dirPermission} and
+# the permissions, or adust the expert options {Store}{dirPermission} and
 # {Store}{filePermission} to be consistent with the system umask.
 $Foswiki::cfg{Store}{overrideUmask} = $FALSE;
 
@@ -1611,7 +1636,7 @@ $Foswiki::cfg{FormTypes} = [
 # This setting will switch on/off caching.
 $Foswiki::cfg{Cache}{Enabled} = $FALSE;
 
-# **SELECTCLASS Foswiki::PageCache::DBI::* DISPLAY_IF="{Cache}{Enabled}" CHECK="iff:'{Cache}{Enabled}'" LABEL="Cache Implementation"**
+# **SELECTCLASS Foswiki::PageCache::DBI::* DISPLAY_IF="{Cache}{Enabled}" CHECK="iff:'{Cache}{Enabled}' also:'{Cache}{Enabled}'" LABEL="Cache Implementation"**
 # Select the cache implementation. The default page cache implementation
 # is based on DBI (http://dbi.perl.org) which requires a working DBI driver to
 # connect to a database. This database will hold all cached data as well as the
@@ -1808,7 +1833,7 @@ $Foswiki::cfg{WebMasterName} = 'Wiki Administrator';
 #         FEEDBACK="icon='ui-icon-mail-closed';label='Send Test Email';wizard='SendTestEmail'; method='send'"**
 # Wiki administrator (webmaster) e-mail address.  It's used as the "Contact" address on web pages and
 # is also optionally used as the sender address in emails sent by Foswiki. For example =webmaster@example.com=
-# If the Expert setting. ={WikiAgentEmail} is configured, it will be used as the From: address.
+# If the Expert option ={WikiAgentEmail} is configured, it will be used as the From: address.
 # Must be a single valid email address. This value is displayed using the =<nop>%WIKIWEBMASTER%= macro.
 # <br/>
 # If your server is already configured to send email, press Auto-configure email. If it works, email will be enabled.  You can then send a test email to further verify operation.
@@ -2109,7 +2134,7 @@ $Foswiki::cfg{Email}{SmimeCertO} = '';
 $Foswiki::cfg{Email}{SmimeCertOU} = '';
 
 #---+ Miscellaneous
-# Miscellaneous expert options.
+# Miscellaneous options. Enable expert options to see the full list.
 
 #---++ Rendering control
 # **STRING 70x10 LABEL="Template Path" NOSPELLCHECK EXPERT**
@@ -2143,17 +2168,6 @@ $Foswiki::cfg{LinkProtocolPattern} =
 # Length of linking acronyms.  Minimum number of consecutive upper case
 # characters required to be linked as an acronym.
 $Foswiki::cfg{AcronymLength} = 3;
-
-# **BOOLEAN LABEL="Require Compatible Anchors" EXPERT**
-# 'Anchors' are positions within a Foswiki page that can be targeted in
-# a URL using the =#anchor= syntax. The format of these anchors has
-# changed several times. If this option is set, Foswiki will generate extra
-# redundant anchors that are compatible with the old formats. If it is not
-# set, the links will still work but will go to the head of the target page.
-# There is a small performance cost for enabling this option. Set it if
-# your site has been around for a long time, and you want existing external
-# links to the internals of pages to continue to work.
-$Foswiki::cfg{RequireCompatibleAnchors} = 0;
 
 # **NUMBER LABEL="Number of Revisions" CHECK="min:0" **
 # How many links to other revisions to show in the bottom bar. 0 for all
@@ -2304,6 +2318,47 @@ $Foswiki::cfg{HomeTopicName} = 'WebHome';
 # *If you change this setting you will have to
 # use Foswiki to manually rename the topic in all existing webs*
 $Foswiki::cfg{NotifyTopicName} = 'WebNotify';
+
+#---++ Compatibility
+# This section contains options that you can use to enforce compatibility
+# with older releases of Foswiki.
+
+# **BOOLEAN EXPERT LABEL="Require Compatible Anchors"**
+# 'Anchors' are positions within a Foswiki page that can be targeted in
+# a URL using the =#anchor= syntax. The format of these anchors has
+# changed several times. If this option is set, Foswiki will generate extra
+# redundant anchors that are compatible with the old formats. If it is not
+# set, the links will still work but will go to the head of the target page.
+# There is a small performance cost for enabling this option. Set it if
+# your site has been around for a long time, and you want existing external
+# links to the internals of pages to continue to work.
+$Foswiki::cfg{RequireCompatibleAnchors} = $FALSE;
+
+# **BOOLEAN EXPERT LABEL="Accept User Password on GET"**
+# Enable this setting if you want
+# =username= and =password= parameters to be accepted on a GET request when
+# provided as part of the query string.  It is more secure to restrict login
+#  operations to POST requests only.
+$Foswiki::cfg{Session}{AcceptUserPwParamOnGET} = $FALSE;
+
+# **BOOLEAN EXPERT LABEL="Map IP to Session ID" DISPLAY_IF="{UseClientSessions}" CHECK="iff:'{UseClientSessions}'" EXPERT**
+# For compatibility with older versions, Foswiki supports the mapping of the
+# clients IP address to a session ID. You can only use this if all
+# client IP addresses are known to be unique.
+# If this option is enabled, Foswiki will *not* store cookies in the
+# browser.
+# The mapping is held in the file =$Foswiki::cfg{WorkingDir}/tmp/ip2sid=.
+# If you turn this option on, you can safely turn {Sessions}{IDsInURLs}
+# _off_.
+$Foswiki::cfg{Sessions}{MapIP2SID} = $FALSE;
+
+# **BOOLEAN EXPERT LABEL="Disable automatic macros on topic template expansion"**
+# In Foswiki version 2.1 and earlier, the macros =DATE=, =GMTIME=, =SERVERTIME=,
+# =USERNAME=, =URLPARAM=, =WIKINAME=, and =WIKIUSERNAME= were automatically expanded
+# on template creation. This has been disabled by default, as the =CREATE:=
+# prefix in topic templates serves the same function much more cleanly.
+# You can re-enable the old behaviour here.
+$Foswiki::cfg{ExpandSomeMacrosOnTopicCreation} = $FALSE;
 
 #############################################################################
 #---+ Extensions

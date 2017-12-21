@@ -102,6 +102,14 @@ sub prepareConnection {
         ? $this->{r}->connection->remote_ip
         : $this->{r}->connection->client_ip
     );
+
+    if ( $Foswiki::cfg{PROXY}{UseForwardedForHeader}
+        && defined $ENV{HTTP_X_FORWARDED_FOR} )
+    {
+        my @addrs = split /,\s?/, $ENV{HTTP_X_FORWARDED_FOR};
+        $req->remoteAddress( $addrs[0] );
+    }
+
     if ( $INC{'Apache2/ModSSL.pm'} ) {
         $req->secure( $this->{r}->connection->is_https ? 1 : 0 );
     }
@@ -128,7 +136,7 @@ sub prepareHeaders {
     $req->remoteUser( $this->{r}->user );
     if ( $Foswiki::cfg{BehindProxy} ) {
         if ( my $source = $req->header('X-Forwarded-For') ) {
-            my $ip = ( split /[, ]+/, $source )[-1];
+            my $ip = ( split /[, ]+/, $source )[0];
             $req->remoteAddress($1)
               if defined $ip and $ip =~ /^((?:\d{1,3}\.){3}\d{1,3})$/;
         }
@@ -153,7 +161,9 @@ sub preparePath {
         $pathInfo = '/' . $action . $pathInfo;
     }
     $req->pathInfo($pathInfo);
-    my $uri = $this->{r}->uri;
+
+    #SMELL: CGI and FastCGI leave the URI encoded, mod_perl decodes it.
+    my $uri = Foswiki::urlEncode( $this->{r}->uri );
     my $qs  = $this->{r}->args;
     $uri .= '?' . $qs if $qs;
     $req->uri($uri);

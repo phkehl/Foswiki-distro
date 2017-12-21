@@ -440,6 +440,8 @@ sub _compare_extension_versions {
     # $b - what we are comparing to (from DEPENDENCIES or configure FastReport)
     my ( $this, $op, $reqVer ) = @_;
 
+    #print STDERR "Requiring $op $reqVer\n";
+
     my $aRELEASE = $this->{installedRelease};
     my $aVERSION = $this->{installedVersion};
 
@@ -488,6 +490,8 @@ sub _compare_extension_versions {
         }
     }
     if ( $reqType eq 'svn' ) {
+
+        #print STDERR "reqType is svn\n";
         unless ( $baseType eq 'svn' ) {
 
             #print STDERR "Try a different comparison\n";
@@ -501,6 +505,8 @@ sub _compare_extension_versions {
     }
 
     if ( $reqType eq 'date' ) {
+
+        #print STDERR "reqType is date\n";
         unless ( $baseType eq 'date' ) {
 
             # Inconsistent VERSION, so try RELEASE
@@ -568,11 +574,22 @@ sub _compare_extension_versions {
         return 0 if ( $atuple[2] < 1    || $btuple[2] < 1 );
     }
 
+    if ( $baseType eq 'svn' && $reqType ne 'svn' ) {
+
+        # Anything to SVN other than SVN or Integers needs to succeed.
+        return 1 unless $reqVer =~ m/^\d+$/;    #keep going for integers
+    }
+
     # We can't figure out the types, so just return false.
     return 0 if ( $baseType eq 'unknown' || $reqType eq 'unknown' );
 
+    #print STDERR "have basetype $baseType reqType $reqType\n";
+
     # Do the comparisons
     ( my $a, $b ) = _digitise_tuples( \@atuple, \@btuple );
+
+    #print STDERR "Doing the comparison  $a $string_op $b\n";
+
     my $comparison = "'$a' $string_op '$b'";
     my $result     = eval($comparison);
 
@@ -784,7 +801,8 @@ sub extractModuleVersion {
                     my $exp = $1;
                     $exp =~ s/\$RELEASE/\$mod_release/g;
                     eval("\$mod_version =~ $exp;");
-                    die "1-Failed to eval $1 from $_ in $file at line $.: $@\n"
+                    print STDERR
+"Dependency.pm 1-Failed to eval $1 from $_ in $file at line $.: $@\n"
                       if ($@);
                     last;
                 }
@@ -796,17 +814,21 @@ sub extractModuleVersion {
                     $mod_version = $1;
                 }
                 if (
-/^\s*(?:our\s+)?\$(?:\w*::)*(RELEASE|VERSION)\s*=(?!~)\s*(.*);/
+/\s*(?:our\s+)?\$(?:\w*::)*(RELEASE|VERSION)\s*=(?!~)\s*(.*);/
                   )
                 {
                     eval( "\$mod_" . lc($1) . " = $2;" );
-                    die "2-Failed to eval $2 from $_ in $file at line $.: $@\n"
+                    print STDERR
+"Dependency.pm 2-Failed to eval $2 from $_ in $file at line $.: $@\n"
                       if ($@);
                     next;
                 }
                 next;
             }
-            next unless (/^\s*(?:our\s+)?\$(?:\w*::)*VERSION\s*=\s*(.*?);/);
+            next
+              unless (
+                /\s*(?:our\s+)?\$(?:\w*::)*VERSION\s*=\s*(?:qv\()?(.*?)(?:\))?;/
+              );
             eval("\$mod_version = $1;");
 
     # die "Failed to eval $1 from $_ in $file at line $. $@\n" if( $@ ); # DEBUG
@@ -872,7 +894,7 @@ sub checkPerlModules {
             $mod->{check_result} .= '*' unless $ok;
             $mod->{check_result} .= " $msg"
               if $msg
-              && ( !$ok || $mod->{installedVersion} eq 'Unknown version' );
+              && ( !$ok || "$mod->{installedVersion}" eq 'Unknown version' );
         }
         else {
             $mod->{ok}               = 0;

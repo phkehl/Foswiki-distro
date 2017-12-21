@@ -1,7 +1,7 @@
 /*
  * jQuery NatEdit plugin 
  *
- * Copyright (c) 2008-2015 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2008-2017 Michael Daum http://michaeldaumconsulting.com
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -445,7 +445,7 @@ $.NatEditor.prototype.initGui = function() {
   self.container.data("natedit", self);
 
   /* flag enabled plugins */
-  if (typeof(tinyMCE) !== 'undefined') {
+  if (typeof(tinymce) !== 'undefined') {
     self.container.addClass("ui-natedit-wysiwyg-enabled");
   }
   if (foswiki.getPreference("NatEditPlugin").FarbtasticEnabled) {
@@ -482,7 +482,11 @@ $.NatEditor.prototype.initGui = function() {
     onDeselect: updateDetails,
     onClear: updateDetails,
     onReset: updateDetails,
-    autocomplete: self.opts.scriptUrl + "/view/" + self.opts.systemWeb + "/JQueryAjaxHelper?section=user;skin=text;contenttype=application/json"
+    autocomplete: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper', {
+        section: 'user',
+        skin:    'text',
+        contenttype: 'application/json'
+    })
   });
 
   function setPermissionSet(data) {
@@ -504,19 +508,16 @@ $.NatEditor.prototype.initGui = function() {
     setPermissionSet($(this).data());
   });
 
-  // SMELL:monkey patch FoswikiTiny
-  if (typeof(FoswikiTiny) !== 'undefined') {
-    self.origSwitchToRaw = FoswikiTiny.switchToRaw;
-
-    FoswikiTiny.switchToRaw = function(inst) {
-      self.tinyMCEInstance = inst;
-      self.origSwitchToRaw(inst);
+  // Catch events emitted by TinyMCE foswiki plugin
+  $txtarea
+    .on("fwSwitchToRaw", function(ev, editor) {
+      self.tinyMCEEditor = editor;
       self.showToolbar();
-      $("#"+inst.id+"_2WYSIWYG").remove(); // SMELL: not required ... shouldn't create it in the first place
-    };
-  } else {
-    $txtarea.removeClass("foswikiWysiwygEdit");
-  }
+    })
+    .on("fwTxError", function(ev, message) {
+      // Problem converting back to WYSIWYG; editor has not been
+      // switched. Deal with the (string) report and plough on.
+    });
 };
 
 /*************************************************************************
@@ -524,10 +525,9 @@ $.NatEditor.prototype.initGui = function() {
 $.NatEditor.prototype.switchToWYSIWYG = function(ev) {
   var self = this;
 
-  if (typeof(self.tinyMCEInstance) !== 'undefined') {
+  if (typeof(self.tinyMCEEditor) !== 'undefined') {
     self.hideToolbar();
-    tinyMCE.execCommand("mceToggleEditor", null, self.tinyMCEInstance.id);
-    FoswikiTiny.switchToWYSIWYG(self.tinyMCEInstance);
+    self.tinyMCEEditor.execCommand("fwSwitchToWYSIWYG");
   }
 };
 
@@ -537,7 +537,10 @@ $.NatEditor.prototype.switchToWYSIWYG = function(ev) {
 $.NatEditor.prototype.initToolbar = function() {
   var self = this, 
       $txtarea = $(self.txtarea),
-      url = self.opts.scriptUrl+"/rest/JQueryPlugin/tmpl?topic="+self.opts.web+"."+self.opts.topic+"&load="+self.opts.toolbar;
+      url = foswiki.getScriptUrl('rest', "JQueryPlugin", "tmpl", {
+       topic: self.opts.web+"."+self.opts.topic,
+       load:  self.opts.toolbar
+       });
 
   // load toolbar
   $.loadTemplate({
@@ -791,8 +794,12 @@ $.NatEditor.prototype.hideMessages = function() {
 $.NatEditor.prototype.extractErrorMessage = function(text) {
   var self = this;
 
-  if (text.match(/^<!DOCTYPE/)) {
+  if (text && text.match(/^<!DOCTYPE/)) {
     text = $(text).find(".natErrorMessage").text().replace(/\s+/g, ' ').replace(/^\s+/, '') || '';
+  }
+
+  if (text === "error") {
+    text = "Error: save failed. Please save your content locally and reload this page.";
   }
 
   return text;
@@ -838,9 +845,9 @@ $.NatEditor.prototype.beforeSubmit = function(editAction) {
     StrikeOne.submit(self.form[0]);
   }
 
-  if (typeof(tinyMCE) !== 'undefined') {
-    $.each(tinyMCE.editors, function(index, editor) { 
-        editor.onSubmit.dispatch(); 
+  if (typeof(tinymce) !== 'undefined') {
+    $.each(tinymce.editors, function(index, editor) { 
+        editor.execCommand("fwsave"); 
     }); 
   }
 
@@ -910,7 +917,7 @@ $.NatEditor.prototype.initForm = function() {
             self.form.submit();
           } else {
             self.form.ajaxSubmit({
-              url: self.opts.scriptUrl + '/rest/NatEditPlugin/save', // SMELL: use this one for REST as long as the normal save can't cope with REST
+              url: foswiki.getScriptUrl( 'rest', 'NatEditPlugin', 'save'),  // SMELL: use this one for REST as long as the normal save can't cope with REST
               beforeSubmit: function() {
                 self.hideMessages();
                 document.title = "Saving ...";
@@ -919,7 +926,7 @@ $.NatEditor.prototype.initForm = function() {
                 });
               },
               error: function(xhr, textStatus, errorThrown) {
-                var message = self.extractErrorMessage(xhr.responseText) || textStatus;
+                var message = self.extractErrorMessage(xhr.responseText || textStatus);
                 self.showMessage("error", message);
               },
               complete: function(xhr, textStatus) {
@@ -961,7 +968,7 @@ $.NatEditor.prototype.initForm = function() {
       self.beforeSubmit("preview");
 
       self.form.ajaxSubmit({
-        url: self.opts.scriptUrl + '/rest/NatEditPlugin/save', // SMELL: use this one for REST as long as the normal save can't cope with REST
+        url: foswiki.getScriptUrl( 'rest', 'NatEditPlugin', 'save'),  // SMELL: use this one for REST as long as the normal save can't cope with REST
         beforeSubmit: function() {
           self.hideMessages();
           $.blockUI({
@@ -969,7 +976,7 @@ $.NatEditor.prototype.initForm = function() {
           });
         },
         error: function(xhr, textStatus, errorThrown) {
-          var message = self.extractErrorMessage(xhr.responseText) || textStatus;
+          var message = self.extractErrorMessage(xhr.responseText || textStatus);
           $.unblockUI();
           self.showMessage("error", message);
         },
@@ -1088,7 +1095,7 @@ $.NatEditor.prototype.handleToolbarAction = function(ev, ui) {
         };
       };
 
-  if (typeof(ui) ==='undefined' && ui.length === 0) {
+  if (typeof(ui) ==='undefined' || ui.length === 0) {
     return;
   }
 
@@ -1701,7 +1708,7 @@ $.NatEditor.prototype.fixHeight = function() {
   var self = this,
     elem,
     windowHeight = $(window).height() || window.innerHeight,
-    tmceEdContainer = (typeof(tinyMCE) !== 'undefined' && tinyMCE.activeEditor)?$(tinyMCE.activeEditor.contentAreaContainer):null,
+    tmceEdContainer = (typeof(tinymce) !== 'undefined' && tinymce.activeEditor)?$(tinymce.activeEditor.contentAreaContainer):null,
     newHeight,
     $debug = $("#DEBUG");
 
@@ -1709,7 +1716,7 @@ $.NatEditor.prototype.fixHeight = function() {
     self.bottomHeight = $('.natEditBottomBar').outerHeight(true) + parseInt($('.jqTabContents').css('padding-bottom'), 10) * 2 + 2; 
   }
 
-  if (tmceEdContainer && !tinyMCE.activeEditor.getParam('fullscreen_is_enabled') && tmceEdContainer.is(":visible")) {
+  if (tmceEdContainer && !tinymce.activeEditor.getParam('fullscreen_is_enabled') && tmceEdContainer.is(":visible")) {
     /* resize tinyMCE. */
     tmceEdContainer.closest(".mceLayout").height('auto'); // remove local height properties
     elem = tmceEdContainer.children('iframe');
@@ -1849,7 +1856,12 @@ $.NatEditor.prototype.dialog = function(opts) {
   }
 
   if (typeof(opts.url) === 'undefined' && typeof(opts.name) !== 'undefined') {
-    opts.url = self.opts.scriptUrl+"/rest/JQueryPlugin/tmpl?topic="+self.opts.web+"."+self.opts.topic+"&load=editdialog&name="+opts.name;
+    opts.url = foswiki.getScriptUrl( 'rest', 'JQueryPlugin', 'tmpl', {
+        topic: self.opts.web+"."+self.opts.topic,
+        load:  'editdialog',
+        name:  opts.name
+    });
+
   }
 
   opts = $.extend({}, defaults, opts);
@@ -2280,7 +2292,11 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
 
   $dialog.find("input[name='web']").each(function() {
     $(this).autocomplete({
-      source: self.opts.scriptUrl+"/view/"+self.opts.systemWeb+"/JQueryAjaxHelper?section=web&skin=text&contenttype=application/json"
+      source: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper', {
+         section:     'web',
+         skin:        'text',
+         contenttype: 'application/json'
+      })
     });
   });
 
@@ -2291,7 +2307,7 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
           xhr.abort();
         }
         xhr = $.ajax({
-          url: self.opts.scriptUrl+"/view/"+self.opts.systemWeb+"/JQueryAjaxHelper",
+          url: foswiki.getScriptUrl('view', self.opts.systemWeb, 'JQueryAjaxHelper'),
           data: $.extend(request, {
             section: 'topic',
             skin: 'text',
@@ -2324,9 +2340,10 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
           xhr.abort();
         }
         xhr = $.ajax({
-          url: self.opts.scriptUrl+"/rest/NatEditPlugin/attachments",
+          url: foswiki.getScriptUrl('rest', 'NatEditPlugin', 'attachments'),
           data: $.extend(request, {
-            topic: $container.find("input[name='web']").val()+'.'+$container.find("input[name='topic']").val()
+            // The topic autocomplete actually returns the Web.Topic
+            topic: $container.find("input[name='topic']").val()
           }),
           dataType: "json",
           autocompleteRequest: ++requestIndex,
@@ -2365,7 +2382,6 @@ $.NatEditor.prototype.initLinkDialog = function(elem, data) {
       }
     };
   });
-  
 
   if (typeof(data.type) !== 'undefined') {
     tabId = $dialog.find(".jqTab."+data.type).attr("id");
@@ -2614,7 +2630,7 @@ $.fn.natedit = function(opts) {
   // build main options before element iteration
   var thisOpts = $.extend({}, $.NatEditor.defaults, opts);
 
-  if (this.is(".foswikiWysiwygEdit") && typeof(tinyMCE) !== 'undefined') {
+  if (this.is(".foswikiWysiwygEdit") && typeof(tinymce) !== 'undefined') {
     thisOpts.showToolbar = false;
   }
 

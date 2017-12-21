@@ -10,17 +10,45 @@ use Data::Dumper;
 use LWP::Simple;
 use JSON;
 
-my $extension = shift;
+my $extensionWeb = 'Extensions';
+my $extension;
+my $start;
+my $nostate;
+my $verbose;
+
 my %items;    # Hash to cache item # & descriptions.
 
 # Tasks that are typically left open and not documented in release notes,  eg. Documentation, Translation, etc.
-my @omit = (qw(Item13883 Item13884 Item13504));
+our @omit = (qw(Item000 Item13883 Item13884 Item13504));
 
-my $start = `git describe --tags --abbrev=0`;
+use Getopt::Long;
+
+GetOptions(
+    "web=s"       => \$extensionWeb,
+    "extension=s" => \$extension,
+    "tag=s"       => \$start,          # string
+    "nostate"     => \$nostate,
+    "verbose"     => \$verbose,
+    "omit=s"      => sub {
+        push @omit, split( /\s,/, $_[1] );
+    },
+    'help' => sub {
+        help();
+        exit;
+
+        #Pod::Usage::pod2usage( -exitstatus => 0, -verbose => 2 );
+    },
+) or die("Error in command line arguments\n");
+
 unless ($start) {
-    help();
-    die "Unable to locate starting tag.";
+
+    $start = `git describe --tags --abbrev=0`;
+    unless ($start) {
+        help();
+        die "Unable to locate starting tag.";
+    }
 }
+
 chomp $start;
 print "checking for changes since $start\n";
 
@@ -34,7 +62,19 @@ extensions is retrieved from "lib/MANIFEST".  Each extension will checked for:
    * The VERSION recorded in the .pm file should be > than the prior releases version.
    * (SMELL: Does not account for interim releases of the extensioni)
    * Commit Item* numbers are extracted from the git commit log and compared to the change log un the data/System/Extension.txt file.
+   * Commits are verified as being in "Waiting for Release"
    * The check_manifest.pl script is run against the extension
+
+The following command line options are accepted:
+   * -e | --extension:   Specifiy the name of an extension to check
+                         If the name of a Release is passed, the System.ReleaseNotesNNxNN topic is checked.
+                         eg.  check_extensions.pl -e Release02x01   will check System.ReleaseNotes02x01
+   * -t | --tag:         Tag of the last release to use as base of commit list
+   * -n | --nostate:     Don't report incorrect task state.  
+   * -v | --verbose:     Report unmodified extensions
+   * -h | --help:        This help text.
+   * -o | --omit:        Add to the list of tasks to omit from the check. Comma-separated task Items.
+   * -w | --web:         Extensions web name - defaults to Extensions
 
 END
 }
@@ -68,8 +108,9 @@ else {
 if ( $extensions[0] =~ m/^Release/ ) {
     my $release = $extensions[0];
     my @itemlist;
+    my @missing;
     my $gitlog = `git log --oneline $start..HEAD .`;
-    next
+    print "No commits in log range: $start..HEAD \n"
       unless
       $gitlog;    # Comment this to get verbose report of unmodified extensions.
     print "\n========== $release ============\n";
@@ -84,11 +125,17 @@ if ( $extensions[0] =~ m/^Release/ ) {
             next if $item ~~ @omit;
             $last = $item;
             my $taskinfo = get_task_info($item);
-            print "WARNING: Wrong state: $taskinfo\n"
-              unless $taskinfo =~ m/Waiting for Release/;
+            if ( !$nostate ) {
+                print "WARNING: Wrong state: $taskinfo\n"
+                  unless $taskinfo =~ m/Waiting for Release/;
+            }
             next if $topicText =~ m/$item\b/;
-            print "MISSING: from change log: $taskinfo\n";
+            push @missing, "Foswikitask:$taskinfo";
 
+        }
+        print "MISSING From Changelog:\n" if ( scalar @missing );
+        foreach (@missing) {
+            print "    $_\n";
         }
     }
 
@@ -96,12 +143,14 @@ if ( $extensions[0] =~ m/^Release/ ) {
 else {
 
     foreach my $ext ( sort @extensions ) {
+        my @missing;
         chomp $ext;
         chdir "$root/$ext";
         my @itemlist;
         my $gitlog = `git log --oneline $start..HEAD .`;
         next
-          unless $gitlog
+          unless $verbose
+          || $gitlog
           ;    # Comment this to get verbose report of unmodified extensions.
         print "\n========== $ext ============\n";
         if ($gitlog) {
@@ -116,16 +165,22 @@ else {
                 next if $item ~~ @omit;
                 $last = $item;
                 my $taskinfo = get_task_info($item);
-                print "WARNING: Wrong state: $taskinfo\n"
-                  unless $taskinfo =~ m/Waiting for Release/;
+                if ( !$nostate ) {
+                    print "WARNING: Wrong state: $taskinfo\n"
+                      unless $taskinfo =~ m/Waiting for Release/;
+                }
                 next if $topicText =~ m/$item\b/;
-                print "MISSING: from change log: $taskinfo\n";
+                push @missing, "Foswikitask:$taskinfo";
 
             }
         }
-
         else {
             print "No changes since last release\n";
+        }
+
+        print "MISSING From Changelog:\n" if ( scalar @missing );
+        foreach (@missing) {
+            print "    $_\n";
         }
 
         my $class = ( $ext =~ m/Plugin/ ) ? 'Plugins' : 'Contrib';
@@ -140,13 +195,20 @@ else {
         my $lv = extractModuleVersion("lib/Foswiki/$class/$ext");
         my $exthash = get_ext_info($ext);
 
+        $exthash->{version} ||= '(none)';
+
         print "\n\n";
         print
-"$ext - Last release: $ov, Uploaded $exthash->{version}, Module: $lv\n";
+"$ext - Last release: $ov, Uploaded $exthash->{version}, Module: $lv Commits: "
+          . scalar @itemlist . "\n";
 
-        if ( ( $ov eq $lv || $exthash->{version} eq $lv ) && $gitlog ) {
-            print
-"ERROR: $ext: Identical versions, but commits logged since last release\n";
+        if ( $exthash->{version} eq '(none)' ) {
+            print "WARNING: $ext has not been uploaded!\n";
+        }
+        elsif ( ( $ov eq $lv || $exthash->{version} eq $lv ) && $gitlog ) {
+            print "ERROR: $ext: Identical versions, but "
+              . scalar @itemlist
+              . " commit(s) logged since last release\n";
         }
     }
 
@@ -285,7 +347,7 @@ sub get_ext_info {
     my $ext = shift;
 
     my $url =
-"https://foswiki.org/Extensions/JsonReport?contenttype=application/json;skin=text;name=^$ext\$";
+"https://foswiki.org/$extensionWeb/JsonReport?contenttype=application/json;skin=text;name=^$ext\$";
     my $jsondata = get $url;
 
     unless ( defined $jsondata ) {

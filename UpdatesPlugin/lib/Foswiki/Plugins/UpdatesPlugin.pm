@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# UpdatesPlugin is Copyright (C) 2011-2015 Foswiki Contributors
+# UpdatesPlugin is Copyright (C) 2011-2017 Foswiki Contributors
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@ use warnings;
 
 use Foswiki::Func ();
 
-our $VERSION           = '1.01';
-our $RELEASE           = '1.01';
+our $VERSION           = '1.04';
+our $RELEASE           = '28 Jul 2017';
 our $SHORTDESCRIPTION  = 'Checks Foswiki.org for updates';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;
@@ -37,11 +37,12 @@ sub initPlugin {
       && ( $context->{view} || $context->{rest} );
 
     my $request = Foswiki::Func::getRequestObject();
-    my $cookie;
+    my $outdatedPlugins;
+    $outdatedPlugins = $request->cookie("FOSWIKI_UPDATESPLUGIN") unless TRACE;
 
-    $cookie = $request->cookie("FOSWIKI_UPDATESPLUGIN") unless TRACE;
-
-    return 1 if defined($cookie) && $cookie <= 0;    # 0: DoNothing
+    return 1
+      if defined($outdatedPlugins)
+      && scalar( split( /\s*,\s*/, $outdatedPlugins ) ) <= 0;    # 0: DoNothing
 
     Foswiki::Func::readTemplate("updatesplugin");
 

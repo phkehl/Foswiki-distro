@@ -346,6 +346,23 @@ sub test_check_dep_version_with_underscore {
 
 }
 
+sub test_check_dep_version_oddball_DBI {
+    my ($this) = @_;
+
+    # Check a normal installed dependency with a version number that includes _
+    # 1, Algorithm::Diff v1.19_01 installed
+    my $dep = new Foswiki::Configure::Dependency(
+        type    => "perl",
+        module  => "DBI",
+        version => ">=1"
+    );
+    my ( $ok, $message ) = $dep->checkDependency();
+    $this->assert_equals( 1, $ok );
+    $this->assert_matches( qr/DBI version \d+\.\d+(?:_\d+)? installed/,
+        $message );
+
+}
+
 sub test_compare_extension_versions {
     my ($this) = @_;
 
@@ -585,6 +602,17 @@ sub test_compare_extension_versions {
         [ 1, undef,   '1.2.3', '<', '13213' ],
         [ 1, '1.2.3', undef,   '>', '7429' ],
         [ 1, '1.2.3', undef,   '<', '13213' ],
+
+       # svn installed, tuple requested - svn is obsolete, so always return true
+       # Except when the "tuple" is a simple integer.
+        [ 1, '2.4.1', '$Rev: 15237 (2012-07-31) $', '<', 2.50 ],
+        [ 1, '2.4.1', '$Rev: 15237 (2012-07-31) $', '>', 2.50 ],
+        [ 1, '2.4.1', '$Rev: 15237 (2012-07-31) $', '<', 16000 ],
+        [ 0, '2.4.1', '$Rev: 15237 (2012-07-31) $', '<', 13000 ],
+
+        # Special case, even though "Release" 2.4.1 is > 2.4.0
+        # the VERSION string is the authority.
+        [ 1, '2.4.1', '$Rev: 15237 (2012-07-31) $', '<', '2.4.0' ],
 
         # Decimal rev installed, compared to svn rev requested
         # Always true - assume migration from rev to triplet
