@@ -30,7 +30,7 @@ use Foswiki::Contrib::MailerContrib::UpData    ();
 
 # Also change Version/Release in Plugins/MailerContrib.pm
 our $VERSION          = '2.85';
-our $RELEASE          = '8 Dec 2017';
+our $RELEASE          = '8 Jan 2018';
 our $SHORTDESCRIPTION = 'Supports email notification of changes';
 
 # PROTECTED STATIC ensure the contrib is internally initialised
@@ -375,7 +375,7 @@ sub _loadUserPreferences {
 
     my $meta = $email2meta->{$email};
     unless ( defined $meta ) {
-        my @wn = Foswiki::Func::emailToWikiNames($email);
+        my @wn = Foswiki::Func::emailToWikiNames( $email, 1 );
 
         # If the email maps to a single user, we can use their
         # preferences.
