@@ -1,29 +1,29 @@
 jQuery(function($) {
   var defaults = {
-    delay:1000,
-    duration:200,
-    showEffect:"fadeIn",
-    hideEffect:"fadeOut",
-    track:true,
-    tooltipClass:'default',
-    position: 'default',
-    defaultPosition: {
+      delay:1000,
+      duration:200,
+      showEffect:"fadeIn",
+      hideEffect:"fadeOut",
+      track:true,
+      tooltipClass:'default',
+
+      /* work around https://bugs.jqueryui.com/ticket/10689 */
+      close: function () { 
+	$(".ui-helper-hidden-accessible > *:not(:last)").remove(); 
+      }
+    },
+    defaultPosition = {
       my: "left+15 top+15",
       at: "left bottom",
-      collision: "flipfit"
-    },
-
-    /* work around https://bugs.jqueryui.com/ticket/10689 */
-    create: function(ev, ui) {
-      $(this).data("ui-tooltip").liveRegion.remove();
-    }
-  };
+      collision: "flipfit flip"
+    };
 
   function addFeedbackClass(coords, feedback) {
     var $modal = $(this),
         horiz = feedback.horizontal,
         vert = feedback.vertical,
         className;
+
 
     /* map it to the correct position name */
     switch (vert) {
@@ -37,20 +37,19 @@ jQuery(function($) {
 
     className = "position-" + horiz + ' position-' + vert;
 
-    $modal.offset(coords);
-
     $modal.removeClass(function (index, css) {
       return (css.match (/\position-\w+/g) || []).join(' ');
     });
 
     $modal.addClass(className);
+    $modal.css(coords);
   }
 
-  $(".jqUITooltip:not(.jqInitedTooltip)").livequery(function() {
+  $(".jqUITooltip:not(.inited)").livequery(function() {
     var $this = $(this),
         opts = $.extend({}, defaults , $this.data());
 
-    $this.addClass("jqInitedTooltip");
+    $this.addClass("inited");
 
     opts.show = $.extend(opts.show, {
       effect: opts.showEffect,
@@ -110,21 +109,36 @@ jQuery(function($) {
           opts.arrow = false;
           break;
         default:
-          opts.position = $.extend({}, opts.defaultPosition, {at:opts.position});
+          opts.position = $.extend({}, defaultPosition);
       }
-    }
+    } 
+    
     if (typeof(opts.position) === 'object') {
       opts.position.using = addFeedbackClass;
     }
 
-    //console.log(opts);
+    if (opts.ajax) {
+      opts.content = function(callback) {
+        var $this = $(this);
+
+        if ($this.data("content")) {
+          return $this.data("content");
+        }
+
+        $.get(opts.ajax).then(function(data) {
+          $this.data("content", data);
+          callback(data);
+        });
+      };
+
+      opts.items = $this;
+    }
 
     $this.tooltip(opts).on("tooltipopen", function(ev, ui) {
       if (opts.arrow) {
         ui.tooltip.prepend("<div class='ui-arrow'></div>");
       }
     });
-
   });
 });
 

@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2004 C-Dot Consultants - All rights reserved
+# Copyright (C) 2004-2019 Foswiki Contributors
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -77,7 +78,7 @@ sub readManifest {
         &$noManifestFileHook()
           if defined($noManifestFileHook)
           ;    #CodeSmell - calling package sub not object method
-        return undef;
+        return;
     }
     my @files;
     my @otherModules;
@@ -199,7 +200,7 @@ sub findInINC {
             return $dir . '/' . $fileName;
         }
     }
-    return undef;
+    return;
 }
 
 1;

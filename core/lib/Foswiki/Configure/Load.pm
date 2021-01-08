@@ -186,6 +186,27 @@ CODE
         }
     }
 
+    if ( !defined $Foswiki::cfg{RootDir} ) {
+
+        # Must have upgraded from Foswiki 2.0/2.1. Set a default directory.
+
+        if ( defined $Foswiki::cfg{LocalesDir}
+            && substr( $Foswiki::cfg{LocalesDir}, 0, 8 ) ne '$Foswiki' )
+        {
+
+            # Make sure we don't use a recursive reference.
+
+            # Taken from Configure/Wizards/InstallExtension to find root.
+            my @instRoot = File::Spec->splitdir( $Foswiki::cfg{LocalesDir} );
+            pop(@instRoot);
+
+            # Force a trailing separator - Linux and Windows are inconsistent
+            my $installRoot = File::Spec->catfile( @instRoot, 'x' );
+            chop $installRoot;
+            $Foswiki::cfg{RootDir} = $installRoot;
+        }
+    }
+
     # Old configs might not bootstrap the OS settings, so set if needed.
     unless ( $Foswiki::cfg{OS} && $Foswiki::cfg{DetailedOS} ) {
         require Foswiki::Configure::Bootstrap;
@@ -201,6 +222,7 @@ CODE
     if ( $^O eq 'MSWin32' ) {
 
         #force paths to use '/'
+        $Foswiki::cfg{RootDir}     =~ s|\\|/|g;
         $Foswiki::cfg{PubDir}      =~ s|\\|/|g;
         $Foswiki::cfg{DataDir}     =~ s|\\|/|g;
         $Foswiki::cfg{ToolsDir}    =~ s|\\|/|g;
@@ -235,7 +257,7 @@ be expanded as 'undef'.
 
 sub expanded {
     my $val = shift;
-    return undef unless defined $val;
+    return unless defined $val;
     expandValue($val);
     return $val;
 }
@@ -251,7 +273,7 @@ hash or array reference, or a scalar value. The replacement is done in-place.
 $mode - How to handle undefined values:
    * false:  'undef' (string) is returned when an undefined value is
      encountered.
-   * 1 : return undef if any undefined value is encountered.
+   * 1 : return if any undefined value is encountered.
    * 2 : return  '' for any undefined value (including embedded)
    * 3 : die if an undefined value is encountered.
 
@@ -342,7 +364,7 @@ sub findDependencies {
         }
     }
     else {
-        while ( $fwcfg =~ m/\$Foswiki::cfg(({[^}]*})+)/g ) {
+        while ( $fwcfg =~ m/\$Foswiki::cfg((\{[^}]*\})+)/g ) {
             push( @{ $deps->{forward}->{$1} },       $keypath );
             push( @{ $deps->{reverse}->{$keypath} }, $1 );
         }

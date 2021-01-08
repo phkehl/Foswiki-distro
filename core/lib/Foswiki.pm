@@ -380,20 +380,6 @@ BEGIN {
         import locale();
     }
 
-    # Set environment var FOSWIKI_NOTAINT to disable taint checks even
-    # if Taint::Runtime is installed
-    elsif ( DEBUG && !$ENV{FOSWIKI_NOTAINT} ) {
-        eval { require Taint::Runtime; };
-        if ($@) {
-            print STDERR
-"DEVELOPER WARNING: taint mode could not be enabled. Is Taint::Runtime installed?\n";
-        }
-        else {
-            # Enable taint checking
-            Taint::Runtime::_taint_start();
-        }
-    }
-
     # If not set, default to strikeone validation
     $Foswiki::cfg{Validation}{Method} ||= 'strikeone';
     $Foswiki::cfg{Validation}{ValidForTime} = $Foswiki::cfg{LeaseLength}
@@ -496,7 +482,7 @@ BEGIN {
     # Header patterns based on '+++'. The '###' are reserved for numbered
     # headers
     # '---++ Header', '---## Header'
-    $regex{headerPatternDa} = qr/^---+(\++|\#+)(.*)$/m;
+    $regex{headerPatternDa} = qr/^---+([\+\#]+)(.*)$/m;
 
     # '<h6>Header</h6>
     $regex{headerPatternHt} = qr/^<h([1-6])>(.+?)<\/h\1>/mi;
@@ -567,7 +553,7 @@ qr(AERO|ARPA|ASIA|BIZ|CAT|COM|COOP|EDU|GOV|INFO|INT|JOBS|MIL|MOBI|MUSEUM|NAME|NE
            )
          )
          |
-           (?:\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])      # dotted triplets IP Address
+           (?:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})      # dotted triplets IP Address
          )
        )oxi;
 
@@ -821,7 +807,10 @@ BOGUS
         $text = '' unless $this->setETags( $cachedPage, $hopts );
     }
 
-    if ( $Foswiki::cfg{HttpCompress} && length($text) ) {
+    if (  !$this->{context}{command_line}
+        && $Foswiki::cfg{HttpCompress}
+        && length($text) )
+    {
 
         # Generate a zipped page, if the client accepts them
 
@@ -891,7 +880,7 @@ sub satisfiedByCache {
     my $cache = $this->{cache};
     return 0 unless $cache;
 
-    my $cachedPage = $cache->getPage( $web, $topic ) if $cache;
+    my $cachedPage = $cache ? $cache->getPage( $web, $topic ) : undef;
     return 0 unless $cachedPage;
 
     Foswiki::Func::writeDebug("found $web.$topic for $action in cache")
@@ -2013,19 +2002,6 @@ sub new {
         if ( $Foswiki::cfg{RemovePortNumber} ) {
             $this->{urlHost} =~ s/\:[0-9]+$//;
         }
-
-        # If the urlHost in the url is localhost, this is a lot less
-        # useful than the default url host. This is because new CGI("")
-        # assigns this host by default - it's a default setting, used
-        # when there is nothing better available.
-        if ( $this->{urlHost} =~ m/^(https?:\/\/)localhost$/i ) {
-            my $protocol = $1;
-
-#only replace localhost _if_ the protocol matches the one specified in the DefaultUrlHost
-            if ( $Foswiki::cfg{DefaultUrlHost} =~ m/^$protocol/i ) {
-                $this->{urlHost} = $Foswiki::cfg{DefaultUrlHost};
-            }
-        }
     }
     else {
         $this->{urlHost} = $Foswiki::cfg{DefaultUrlHost};
@@ -2764,6 +2740,62 @@ sub expandMacrosOnTopicCreation {
 
 =begin TML
 
+---++ objectMethod generateRandomChars( $length [, $fromString] )
+
+Generate a character string of length $length.  If a $fromString is supplied,
+use the characters in that string as the set of characters available for
+the random string.
+
+This routine attempts to use a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG)
+If it is not availble, it falls back to the old Foswiki/TWiki algorithm, based upon the
+perl rand() function.
+
+=cut
+
+my $CSPRNG;
+
+sub generateRandomChars {
+
+    my $length   = shift;
+    my $universe = shift;
+
+    # Provide a default if undefined
+    # $ and : illegal in htpasswd file, <># significant in URLs
+    $universe ||=
+'_./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#%{}[]|';
+
+    unless ( defined $CSPRNG ) {
+        $CSPRNG = 0;
+        eval 'use Bytes::Random::Secure';
+        unless ($@) {
+            $CSPRNG = Bytes::Random::Secure->new(
+                NonBlocking => 1,     # Use non-blocking source of randomness
+                Bits        => 256    # This is the default entropy
+            );
+        }
+    }
+
+    if ($CSPRNG) {
+
+        # Use Secure::Random::Bytes
+        return $CSPRNG->string_from( $universe, $length, '' );
+
+    }
+    else {
+        # This is the original Foswiki / TWiki Salt algorithm.
+        # It mixes in the Login which is no longer recommended.
+        my @chars = split( //, $universe );
+        my $random;
+
+        foreach ( 1 .. $length ) {
+            $random .= $chars[ rand @chars ];
+        }
+        return $random;
+    }
+}
+
+=begin TML
+
 ---++ StaticMethod entityEncode( $text [, $extras] ) -> $encodedText
 
 Escape special characters to HTML numeric entities. This is *not* a generic
@@ -3164,7 +3196,8 @@ sub _processMacros {
     #my $grunt = 1; uncomment lines mentioning $grunt for tracing
 
     unless ($depth) {
-        my $mess = "Max recursive depth reached: $text";
+        my $mess =
+          "Max recursive depth reached: $text at " . $topicObject->getPath();
         $this->logger->log( 'warning', $mess );
 
         # prevent recursive expansion that just has been detected
@@ -3340,7 +3373,7 @@ sub _expandMacroOnTopicRendering {
                     my $val = $attrs->{$tag};
                     $val = $tattrs->{default} unless defined $val;
                     return expandStandardEscapes($val) if defined $val;
-                    return undef;
+                    return;
                 },
                 $topicObject,
                 1
@@ -3612,7 +3645,7 @@ sub readFile {
     my $name = shift;
     ASSERT(0) if DEBUG;
     my $IN_FILE;
-    open( $IN_FILE, "<$name" ) || return '';
+    open( $IN_FILE, '<', $name ) || return '';
     local $/ = undef;
     my $data = <$IN_FILE>;
     close($IN_FILE);

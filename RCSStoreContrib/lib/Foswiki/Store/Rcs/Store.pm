@@ -107,7 +107,7 @@ sub readTopic {
         }
     }
     else {
-        undef $version;  # if it's a non-numeric string, we need to return undef
+        undef $version;  # if it's a non-numeric string, we need to return
     }
 
     return ( undef, undef ) unless $handler->storedDataExists();
@@ -226,7 +226,7 @@ sub copyAttachment {
     my $handler =
       $this->getHandler( $oldTopicObject->web, $oldTopicObject->topic,
         $oldAttachment );
-    return undef unless $handler->storedDataExists();
+    return unless $handler->storedDataExists();
 
     my $rev =
       $handler->copyAttachment( $this, $newTopicObject->web,
@@ -341,7 +341,7 @@ sub _getAttachmentVersionInfo {
           $this->getHandler( $topicObject->web, $topicObject->topic,
             $attachment );
         $info = $handler->getInfo( $rev || 0 );
-        $info->{author} = _decode( $info->{author} );
+        $info->{author}  = _decode( $info->{author} );
         $info->{comment} = _decode( $info->{comment} );
     }
 
@@ -377,8 +377,8 @@ sub getVersionInfo {
     if ( not defined $info ) {
         my $handler =
           $this->getHandler( $topicObject->web, $topicObject->topic );
-        $info = $handler->getInfo($rev);
-        $info->{author} = _decode( $info->{author} );
+        $info            = $handler->getInfo($rev);
+        $info->{author}  = _decode( $info->{author} );
         $info->{comment} = _decode( $info->{comment} );
     }
 
@@ -418,6 +418,13 @@ sub saveTopic {
 
     my $handler = $this->getHandler( $topicObject->web, $topicObject->topic );
     my $verb = ( $topicObject->existsInStore() ) ? 'update' : 'insert';
+
+    if (   $options->{forceinsert}
+        && $verb eq 'update' )
+    {
+        die
+"Store: Attempting to save a topic that already exists, and forceinsert specified";
+    }
 
     # just in case they are not sequential
     my $nextRev = $handler->getNextRevisionID();

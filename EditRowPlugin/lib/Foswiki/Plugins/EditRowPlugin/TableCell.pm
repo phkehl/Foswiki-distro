@@ -84,7 +84,7 @@ sub render {
             }
         }
 
-        if ( $this->{isHeader} ) {
+        if ( $this->{isHeader} && $this->{row}->isHeader ) {
 
             # Headers are never editable, but may be sortable
             my $attrs = {};
@@ -160,7 +160,11 @@ sub render {
                     $sopts->{class} = join( ' ', @css_classes );
                 }
             }
+            $text = "&nbsp;" if !defined($text) || $text eq '';
             $text = Foswiki::Render::html( 'div', $sopts, " $text " );
+            if ( $this->{isHeader} ) {
+                $text = "*${text}*";
+            }
         }
     }
     $text =~ s/%/&#37;/g;    # prevent further macro expansion Item10770
@@ -186,7 +190,7 @@ __END__
 
 Author: Crawford Currie http://c-dot.co.uk
 
-Copyright (c) 2009-2011 Foswiki Contributors
+Copyright (c) 2009-2020 Foswiki Contributors
 Copyright (C) 2007 WindRiver Inc. and TWiki Contributors.
 All Rights Reserved. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution.

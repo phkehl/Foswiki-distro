@@ -1,4 +1,5 @@
 # Copyright (C) 2005-2011 Sven Dowideit & Crawford Currie
+# Copyright (C) 2011-2020 Foswiki Contributors
 #
 # Tests for the Foswiki::Store API used by the Foswiki::Meta class to
 # interact with the store.
@@ -153,6 +154,35 @@ sub verify_CreateWebWithNonExistantBaseWeb {
     };
     $this->assert($ok);
     $this->assert( !$this->{session}->webExists($web) );
+
+    return;
+}
+
+# Create a simple topic containing only text
+sub verify_forceinsert {
+    my $this = shift;
+
+    Foswiki::Func::createWeb( $this->{t_web}, '_default' );
+    $this->assert( $this->{session}->webExists( $this->{t_web} ) );
+    $this->assert(
+        !$this->{session}->topicExists( $this->{t_web}, $this->{t_topic} ) );
+
+    my $text = "This is some test text\n   * some list\n   * content\n :) :)";
+    my ($meta) = Foswiki::Func::readTopic( $this->{t_web}, $this->{t_topic} );
+    $meta->text($text);
+    $meta->save();
+    my ($readMeta) =
+      Foswiki::Func::readTopic( $this->{t_web}, $this->{t_topic} );
+    $this->assert_str_equals( $text, $readMeta->text );
+
+    eval {
+        $this->{session}->{store}
+          ->saveTopic( $readMeta, 'BaseUserMapping_333', { forceinsert => 1 } );
+    };
+    $this->assert_matches(
+qr/Attempting to save a topic that already exists, and forceinsert specified/,
+        $@
+    );
 
     return;
 }

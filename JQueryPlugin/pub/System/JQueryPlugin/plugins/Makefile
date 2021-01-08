@@ -1,6 +1,7 @@
 SUBDIRS=\
   animate \
   autocomplete \
+  browser \
   bgiframe \
   blockui \
   button \
@@ -25,6 +26,7 @@ SUBDIRS=\
   livequery \
   loader \
   localscroll \
+  observer \
   maskedinput \
   masonry \
   media \

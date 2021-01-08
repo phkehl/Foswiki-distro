@@ -6,6 +6,7 @@
 package RCSHandlerTests;
 
 use strict;
+use warnings;
 
 use FoswikiTestCase;
 our @ISA = qw( FoswikiTestCase );
@@ -107,9 +108,10 @@ sub set_up {
 
     File::Path::mkpath("$Foswiki::cfg{DataDir}/$testWeb");
     File::Path::mkpath("$Foswiki::cfg{PubDir}/$testWeb");
-    $this->assert( open( F, ">$Foswiki::cfg{TempfileDir}/itme3122" ), $! );
-    print F "old";
-    $this->assert( close(F), $! );
+    my $F;
+    $this->assert( open( $F, ">", "$Foswiki::cfg{TempfileDir}/itme3122" ), $! );
+    print $F "old";
+    $this->assert( close($F), $! );
     require Foswiki::Users::BaseUserMapping;    #
 }
 
@@ -218,6 +220,11 @@ there was a man
 HERE
     $rcs->addRevisionFromText( $string1, "in once", "JohnTalintyre" );
     my ($text) = $rcs->getRevision(1);
+
+    $text =~ s/( date=")(.*?)(".*)/$1$time$3/; # dont be too picky about slight time delays
+    my $real = $2;
+    $this->assert($time - $real < 1000);
+
     $this->assert_equals( $string1, $text );
     $this->assert_equals( 1,        $rcs->_numRevisions() );
 
@@ -231,6 +238,10 @@ HERE
     $rcs->replaceRevision( $string2, "1st replace", "NotJohnTalintyre", $time );
     $this->assert_equals( 1, $rcs->_numRevisions() );
     ($text) = $rcs->getRevision(1);
+
+    $text =~ s/( date=")(.*?)(".*)/$1$time$3/; # dont be too picky about slight time delays
+    $real = $2;
+    $this->assert($time - $real < 1000);
     $this->assert_equals( $string2, $text );
 
     $time = time();
@@ -521,11 +532,12 @@ sub verify_Keywords {
 HERE
     $check .=
 '$Author$ $Date$ $Header$ $Id$ $Locker$ $Log$ $Name$ $RCSfile$ $Revision$ $Source$ $State$';
-    $rcs->addRevisionFromText( $check, "comment", "UserForRev0" );
-    open( F, "<$rcs->{file}" ) || die "Failed to open $rcs->{file}";
+    $rcs->addRevisionFromText( $check, "comment", "UserForRev0", $time );
+    my $F;
+    open( $F, "<", $rcs->{file} ) || die "Failed to open $rcs->{file}";
     local $/ = undef;
-    $this->assert_str_equals( $check, <F> );
-    close(F);
+    $this->assert_str_equals( $check, <$F> );
+    close($F);
 }
 
 sub checkDifferences {
@@ -593,16 +605,17 @@ sub verify_RevAtTime {
     my ($this) = @_;
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'AtTime', "" );
-    $rcs->addRevisionFromText( "Rev0\n", '', "RcsWrapper", 0 );
-    $rcs->addRevisionFromText( "Rev1\n", '', "RcsWrapper", 1000 );
-    $rcs->addRevisionFromText( "Rev2\n", '', "RcsWrapper", 2000 );
+    my $now = time();
+    $rcs->addRevisionFromText( "Rev0\n", '', "RcsWrapper", $now );
+    $rcs->addRevisionFromText( "Rev1\n", '', "RcsWrapper", $now + 1000 );
+    $rcs->addRevisionFromText( "Rev2\n", '', "RcsWrapper", $now + 2000 );
     $rcs = $class->new( new StoreStub, $testWeb, 'AtTime', "" );
 
-    my ($r) = $rcs->getRevisionAtTime(500);
+    my ($r) = $rcs->getRevisionAtTime($now + 500);
     $this->assert_equals( 1, $r );
-    $r = $rcs->getRevisionAtTime(1500);
+    $r = $rcs->getRevisionAtTime($now + 1500);
     $this->assert_equals( 2, $r );
-    $r = $rcs->getRevisionAtTime(2500);
+    $r = $rcs->getRevisionAtTime($now + 2500);
     $this->assert_equals( 3, $r );
 }
 
@@ -611,39 +624,40 @@ sub verify_RevInfo {
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'RevInfo', "" );
 
-    $rcs->addRevisionFromText( "Rev1\n", 'FirstComment',  "FirstUser",  0 );
-    $rcs->addRevisionFromText( "Rev2\n", 'SecondComment', "SecondUser", 1000 );
-    $rcs->addRevisionFromText( "Rev3\n", 'ThirdComment',  "ThirdUser",  2000 );
+    my $now = time();
+    $rcs->addRevisionFromText( "Rev1\n", 'FirstComment',  "FirstUser",  $now );
+    $rcs->addRevisionFromText( "Rev2\n", 'SecondComment', "SecondUser", $now + 1000 );
+    $rcs->addRevisionFromText( "Rev3\n", 'ThirdComment',  "ThirdUser",  $now + 2000 );
 
     $rcs = $class->new( new StoreStub, $testWeb, 'RevInfo', "" );
 
     my $info = $rcs->getInfo(1);
     $this->assert_equals( 1, $info->{version} );
-    $this->assert_equals( 0, $info->{date} );
+    $this->assert_equals( $now, $info->{date} );
     $this->assert_str_equals( 'FirstUser',    $info->{author} );
     $this->assert_str_equals( 'FirstComment', $info->{comment} );
 
     $info = $rcs->getInfo(2);
     $this->assert_equals( 2,    $info->{version} );
-    $this->assert_equals( 1000, $info->{date} );
+    $this->assert_equals( $now + 1000, $info->{date} );
     $this->assert_str_equals( 'SecondUser',    $info->{author} );
     $this->assert_str_equals( 'SecondComment', $info->{comment} );
 
     $info = $rcs->getInfo(3);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     $info = $rcs->getInfo(0);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     $info = $rcs->getInfo(4);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
@@ -664,46 +678,48 @@ sub verify_OutOfDate_RevInfo {
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'RevInfo', "" );
 
-    $rcs->addRevisionFromText( "Rev1\n", 'FirstComment',  "FirstUser",  0 );
-    $rcs->addRevisionFromText( "Rev2\n", 'SecondComment', "SecondUser", 1000 );
-    $rcs->addRevisionFromText( "Rev3\n", 'ThirdComment',  "ThirdUser",  2000 );
+    my $now = time();
+    $rcs->addRevisionFromText( "Rev1\n", 'FirstComment',  "FirstUser",  $now );
+    $rcs->addRevisionFromText( "Rev2\n", 'SecondComment', "SecondUser", $now + 1000 );
+    $rcs->addRevisionFromText( "Rev3\n", 'ThirdComment',  "ThirdUser",  $now + 2000 );
 
     $rcs = $class->new( new StoreStub, $testWeb, 'RevInfo', "" );
 
     my $info = $rcs->getInfo(1);
     $this->assert_equals( 1, $info->{version} );
-    $this->assert_equals( 0, $info->{date} );
+    $this->assert_equals($now, $info->{date} );
     $this->assert_str_equals( 'FirstUser',    $info->{author} );
     $this->assert_str_equals( 'FirstComment', $info->{comment} );
 
     $info = $rcs->getInfo(2);
     $this->assert_equals( 2,    $info->{version} );
-    $this->assert_equals( 1000, $info->{date} );
+    $this->assert_equals( $now + 1000, $info->{date} );
     $this->assert_str_equals( 'SecondUser',    $info->{author} );
     $this->assert_str_equals( 'SecondComment', $info->{comment} );
 
     $info = $rcs->getInfo(3);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     $info = $rcs->getInfo(0);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     $info = $rcs->getInfo(4);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     sleep 2;
-    open( FH, '>>', "$rcs->{file}" );
-    print FH "Modified";
-    close FH;
+    my $FH;
+    open( $FH, '>>', $rcs->{file} );
+    print $FH "Modified";
+    close $FH;
 
     $info = $rcs->getInfo(0);
     my $time1 = "$info->{date}\n";
@@ -715,31 +731,31 @@ sub verify_OutOfDate_RevInfo {
 
     $info = $rcs->getInfo(1);
     $this->assert_equals( 1, $info->{version} );
-    $this->assert_equals( 0, $info->{date} );
+    $this->assert_equals( $now, $info->{date} );
     $this->assert_str_equals( 'FirstUser',    $info->{author} );
     $this->assert_str_equals( 'FirstComment', $info->{comment} );
 
     $info = $rcs->getInfo(2);
     $this->assert_equals( 2,    $info->{version} );
-    $this->assert_equals( 1000, $info->{date} );
+    $this->assert_equals( $now + 1000, $info->{date} );
     $this->assert_str_equals( 'SecondUser',    $info->{author} );
     $this->assert_str_equals( 'SecondComment', $info->{comment} );
 
     $info = $rcs->getInfo(3);
     $this->assert_equals( 3,    $info->{version} );
-    $this->assert_equals( 2000, $info->{date} );
+    $this->assert_equals( $now + 2000, $info->{date} );
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
     $info = $rcs->getInfo(0);
     $this->assert_equals( 4, $info->{version} );
-    $this->assert( ( 2000 < $info->{date} ) );
+    $this->assert( ( $now < $info->{date} ) );
     $this->assert_str_equals( 'BaseUserMapping_999', $info->{author} );
     $this->assert_str_equals( 'pending',             $info->{comment} );
 
     $info = $rcs->getInfo(4);
     $this->assert_equals( 4, $info->{version} );
-    $this->assert( ( 2000 < $info->{date} ) );
+    $this->assert( ( $now < $info->{date} ) );
     $this->assert_str_equals( 'BaseUserMapping_999', $info->{author} );
     $this->assert_str_equals( 'pending',             $info->{comment} );
 
@@ -752,9 +768,10 @@ sub verify_MissingVrestoreRev {
 
     my $file = "$Foswiki::cfg{DataDir}/$testWeb/MissingV.txt";
 
-    open( F, ">$file" ) || die;
-    print F "Rev 1\n";
-    close(F);
+    my $F;
+    open( $F, ">", $file ) || die;
+    print $F "Rev 1\n";
+    close($F);
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'MissingV', "" );
     my $info = $rcs->getInfo(3);
@@ -785,9 +802,10 @@ sub verify_MissingVrepRev {
 
     my $file = "$Foswiki::cfg{DataDir}/$testWeb/MissingV.txt";
 
-    open( F, ">$file" ) || die;
-    print F "Rev 1\n";
-    close(F);
+    my $F;
+    open( $F, ">", $file ) || die;
+    print $F "Rev 1\n";
+    close($F);
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'MissingV', "" );
     my $info = $rcs->getInfo(3);
@@ -821,9 +839,10 @@ sub verify_MissingVdelRev {
 
     my $file = "$Foswiki::cfg{DataDir}/$testWeb/MissingV.txt";
 
-    open( F, ">$file" ) || die;
-    print F "Rev 1";
-    close(F);
+    my $F;
+    open( $F, ">", $file ) || die;
+    print $F "Rev 1";
+    close($F);
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'MissingV', "" );
     my $info = $rcs->getInfo(3);
@@ -903,9 +922,10 @@ F
 B
 HERE
     my $file = "$Foswiki::cfg{DataDir}/$testWeb/Item2957.txt";
-    open( F, ">$file" ) || die;
-    print F $rev1;
-    close(F);
+    my $F;
+    open( $F, ">", $file ) || die;
+    print $F $rev1;
+    close($F);
 
     my $rcs = $class->new( new StoreStub, $testWeb, 'Item2957', '' );
     $rcs->addRevisionFromText( $rev2, "more", "idiot", $time );
@@ -962,7 +982,7 @@ HERE
     sleep(1);
 
     my $fh;
-    $this->assert( open( $fh, "<$Foswiki::cfg{TempfileDir}/itme3122" ), $! );
+    $this->assert( open( $fh, "<", "$Foswiki::cfg{TempfileDir}/itme3122" ), $! );
     $rcs->addRevisionFromStream( $fh, "more", "idiot", $time );
     close($fh);
 

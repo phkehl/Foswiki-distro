@@ -121,8 +121,10 @@ sub init {
     }
 
     # gather dependencies
-    my @dependencies =
-      ('JQUERYPLUGIN::FOSWIKI');    # jquery.foswiki is in there by default
+    my @dependencies = (
+        'JQUERYPLUGIN::FOSWIKI', 'JQUERYPLUGIN::MIGRATE',
+        'JQUERYPLUGIN::OBSERVER'
+    );    # jquery.foswiki is in there by default
 
     # add i18n when required
     push @{ $this->{dependencies} }, "i18n" if $this->{i18n};
@@ -181,8 +183,7 @@ sub renderJS {
     $text =~ s/\.js$/.uncompressed.js/
       if $this->{debug} && $text !~ /(\.uncompressed|_src|\.dev)\./;
     $text .= '?version=' . $this->{version};
-    $text =
-      "<script type='text/javascript' src='$this->{puburl}/$text'></script>\n";
+    $text = "<script src='$this->{puburl}/$text'></script>\n";
 
     return $text;
 }
@@ -192,19 +193,21 @@ sub renderI18N {
 
     # open matching localization file if it exists
     my $session = $Foswiki::Plugins::SESSION;
-    my $langTag = $session->i18n->language();
+    my @langs   = $session->i18n->available_languages();
+    push @langs, "en";
 
-    my $messagePath = $path . '/' . $langTag . '.js';
-    my $messageFile = $Foswiki::cfg{PubDir} . '/' . $messagePath;
-    if ( -f $messageFile ) {
-        my $text .=
+    foreach my $langTag (@langs) {
+        my $messagePath = $path . '/' . $langTag . '.js';
+        my $messageFile = $Foswiki::cfg{PubDir} . '/' . $messagePath;
+        if ( -f $messageFile ) {
+            my $text .=
 "<script type='application/l10n' data-i18n-language='$langTag' data-i18n-namespace='"
-          . uc( $this->{name} )
-          . "' src='$Foswiki::cfg{PubUrlPath}/$messagePath' ></script>\n";
-        Foswiki::Func::addToZone(
-            'script', uc( $this->{name} ) . "::I8N",
-            $text,    'JQUERYPLUGIN::I18N'
-        );
+              . uc( $this->{name} )
+              . "' src='$Foswiki::cfg{PubUrlPath}/$messagePath' ></script>\n";
+            Foswiki::Func::addToZone( 'script',
+                uc( $this->{name} ) . "::" . uc($langTag) . "::I8N",
+                $text, 'JQUERYPLUGIN::I18N' );
+        }
     }
 }
 
@@ -241,7 +244,7 @@ sub getSummary {
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2010-2016 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2010-2020 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 

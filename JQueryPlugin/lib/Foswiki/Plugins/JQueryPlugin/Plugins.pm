@@ -5,15 +5,12 @@ use strict;
 use warnings;
 use Foswiki::Func();
 
-my @iconSearchPath;
-my %iconCache;
 my %plugins;
 my %themes;
 my $debug;
 my $currentTheme;
 
-use constant JQUERY1_DEFAULT => 'jquery-1.12.4';
-use constant JQUERY2_DEFAULT => 'jquery-2.2.4';
+use constant JQUERY_DEFAULT => 'jquery-2.2.4';
 
 =begin TML
 
@@ -53,7 +50,7 @@ sub init {
 
     # load jquery
     my $jQuery = $Foswiki::cfg{JQueryPlugin}{JQueryVersion}
-      || JQUERY2_DEFAULT;
+      || JQUERY_DEFAULT;
 
     # test for the jquery library to be present
     unless ( -e $Foswiki::cfg{PubDir} . '/'
@@ -65,47 +62,14 @@ sub init {
         Foswiki::Func::writeWarning(
 "CAUTION: jQuery $jQuery not found. please fix the {JQueryPlugin}{JQueryVersion} settings."
         );
-        $jQuery = JQUERY2_DEFAULT;
+        $jQuery = JQUERY_DEFAULT;
     }
 
     $jQuery .= ".uncompressed" if $debug;
 
-    my $jQueryIE = $Foswiki::cfg{JQueryPlugin}{JQueryVersionForOldIEs};
-    $jQueryIE = JQUERY1_DEFAULT unless defined $jQueryIE;
-
-    my $code;
-    if ($jQueryIE) {
-
-        # test for the jquery library to be present
-        unless ( -e $Foswiki::cfg{PubDir} . '/'
-            . $Foswiki::cfg{SystemWebName}
-            . '/JQueryPlugin/'
-            . $jQueryIE
-            . '.js' )
-        {
-            Foswiki::Func::writeWarning(
-"CAUTION: jQuery $jQueryIE not found. please fix the {JQueryPlugin}{JQueryVersionForOldIEs} settings."
-            );
-            $jQueryIE = JQUERY1_DEFAULT;
-        }
-
-        $jQueryIE .= ".uncompressed" if $debug;
-
-        $code = <<"HERE";
-<literal><!--[if lte IE 9]>
-<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$jQueryIE.js'></script>
-<![endif]-->
-<!--[if gt IE 9]><!-->
-<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$jQuery.js'></script>
-<!--<![endif]-->
-</literal>
+    my $code = <<"HERE";
+<script src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$jQuery.js'></script>
 HERE
-    }
-    else {
-        $code = <<"HERE";
-<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$jQuery.js'></script>
-HERE
-    }
 
     # switch on noconflict mode
     if ( $Foswiki::cfg{JQueryPlugin}{NoConflict} ) {
@@ -113,14 +77,14 @@ HERE
         $noConflict .= ".uncompressed" if $debug;
 
         $code .= <<"HERE";
-<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$noConflict.js'></script>
+<script src='%PUBURLPATH%/%SYSTEMWEB%/JQueryPlugin/$noConflict.js'></script>
 HERE
     }
 
     Foswiki::Func::addToZone( 'script', 'JQUERYPLUGIN', $code );
 
     # initial plugins
-    createPlugin('Foswiki');    # this one is needed anyway
+    createPlugin('foswiki');    # these are needed anyway
 
     my $defaultPlugins = $Foswiki::cfg{JQueryPlugin}{DefaultPlugins};
     if ($defaultPlugins) {
@@ -244,6 +208,8 @@ sub registerTheme {
 
 =begin TML
 
+---++ ObjectMethod finish
+
 finalizer
 
 =cut
@@ -252,8 +218,6 @@ sub finish {
 
     undef %plugins;
     undef %themes;
-    undef @iconSearchPath;
-    undef %iconCache;
     undef $currentTheme;
 }
 
@@ -282,7 +246,9 @@ sub load {
 
     unless ( defined $pluginDesc->{instance} ) {
 
-        eval "require $pluginDesc->{class};";
+        my $path = $pluginDesc->{class} . '.pm';
+        $path =~ s/::/\//g;
+        eval { require $path };
 
         if ($@) {
             Foswiki::Func::writeDebug(
@@ -329,67 +295,6 @@ sub expandVariables {
 
 =begin TML
 
----++ ObjectMethod getIconUrlPath ( $iconName ) -> $pubUrlPath
-
-Returns the path to the named icon searching along a given icon search path.
-This path can be in =$Foswiki::cfg{JQueryPlugin}{IconSearchPath}= or will fall
-back to =FamFamFamSilkIcons=, =FamFamFamSilkCompanion1Icons=,
-=FamFamFamFlagIcons=, =FamFamFamMiniIcons=, =FamFamFamMintIcons= As you see
-installing Foswiki:Extensions/FamFamFamContrib would be nice to have.
-
-   = =$iconName=: name of icon; you will have to know the icon name by heart as listed in your
-     favorite icon set, meaning there's no mapping between something like "semantic" and "physical" icons
-   = =$pubUrlPath=: the path to the icon as it is attached somewhere in your wiki or the empty
-     string if the icon was not found
-
-=cut
-
-sub getIconUrlPath {
-    my ($iconName) = @_;
-
-    return '' unless $iconName;
-
-    unless (@iconSearchPath) {
-        my $iconSearchPath = $Foswiki::cfg{JQueryPlugin}{IconSearchPath}
-          || 'FamFamFamSilkIcons, FamFamFamSilkCompanion1Icons, FamFamFamSilkCompanion2Icons, FamFamFamSilkGeoSilkIcons, FamFamFamFlagIcons, FamFamFamMiniIcons, FamFamFamMintIcons';
-        @iconSearchPath = split( /\s*,\s*/, $iconSearchPath );
-    }
-
-    $iconName =~ s/^.*\.(.*?)$/$1/;    # strip file extension
-
-    my $iconPath = $iconCache{$iconName};
-
-    unless ($iconPath) {
-        foreach my $item (@iconSearchPath) {
-            my ( $web, $topic ) = Foswiki::Func::normalizeWebTopicName(
-                $Foswiki::cfg{SystemWebName}, $item );
-
-            # SMELL: store violation assumes the we have got file-level access
-            # better use store api
-            my $iconDir =
-                $Foswiki::cfg{PubDir} . '/'
-              . $web . '/'
-              . $topic . '/'
-              . $iconName . '.png';
-            if ( -f $iconDir ) {
-                $iconPath =
-                    Foswiki::Func::getPubUrlPath() . '/'
-                  . $web . '/'
-                  . $topic . '/'
-                  . $iconName . '.png';
-                last;    # first come first serve
-            }
-        }
-
-        $iconPath ||= '';
-        $iconCache{$iconName} = $iconPath;
-    }
-
-    return $iconPath;
-}
-
-=begin TML
-
 ---++ ClassMethod getPlugins () -> @plugins
 
 returns a list of all known plugins
@@ -431,7 +336,7 @@ sub getRandom {
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2010-2016 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2010-2020 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 

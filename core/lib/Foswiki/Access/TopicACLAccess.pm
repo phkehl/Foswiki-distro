@@ -91,6 +91,15 @@ sub haveAccess {
     my ( $allow, $deny );
     if ( $meta->{_topic} ) {
 
+        if ( $Foswiki::cfg{AccessControlACL}{RestrictedEdit} =~
+            m/\b\Q$meta->{_topic}\E\b/ && $mode ne 'VIEW' )
+        {
+            $this->{failure} =
+              $session->i18n->maketext('access denied on topic');
+            print STDERR 'a ' . $this->{failure}, "\n" if MONITOR;
+            return 0;
+        }
+
         $allow = $this->_getACL( $meta, 'ALLOWTOPIC' . $mode );
         $deny  = $this->_getACL( $meta, 'DENYTOPIC' . $mode );
 
@@ -203,7 +212,7 @@ sub _getACL {
     }
 
     my $text = $meta->getPreference($mode);
-    return undef unless defined $text;
+    return unless defined $text;
 
     if ( $Foswiki::cfg{AccessControlACL}{EnableAdditiveRules}
         && substr( $text, 0, 1 ) eq '+' )

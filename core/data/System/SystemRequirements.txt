@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1510027045" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1603730941" format="1.1" version="1"}%
 %META:TOPICPARENT{name="AdminDocumentationCategory"}%
 ---+ System Requirements
 
@@ -52,6 +52,7 @@ Install apache and rcs: ==apt-get install apache2 rcs==
 | CGI::Session | =libcgi-session-perl= | |
 | Crypt::PasswdMD5 | =libcrypt-passwdmd5-perl= | |
 | Digest::SHA | =libdigest-sha-perl= | *First shipped in perl 5.9.3 |
+| Email::Address::XS | =libemail-address-xs-perl= | |
 | Email::MIME | =libemail-mime-perl=  | |
 | Encode | =libencode-perl= | |
 | Error | =liberror-perl= | |
@@ -61,6 +62,7 @@ Install apache and rcs: ==apt-get install apache2 rcs==
 | IO::Socket::IP | =libio-socket-ip-perl= | First shipped perl 5.19.8 |
 | IO::Socket::SSL | =libio-socket-ssl-perl= | |
 | JSON | =libjson-perl= | |
+| Locale::Codes | =liblocale-codes-perl= | |
 | Locale::Maketext | =liblocale-maketext-perl= |  |
 | Locale::Maketext::Lexicon | =liblocale-maketext-lexicon-perl= | Optional, needed for internationalization |
 | Locale::Msgfmt | =liblocale-msgfmt-perl= | Optional, needed for internationalization |
@@ -119,6 +121,7 @@ Install apache2, rcs, and perl-CPAN
 | CGI::Session | =perl-CGI-Session= | |
 | Crypt::PasswdMD5 | =perl-Crypt-PasswdMD5= | |
 | Digest::SHA | =perl-Digest-SHA= | *First shipped in perl 5.9.3 |
+| Email::Address::XS | =perl-Email-Address-XS= | |
 | Email::MIME | =perl-Email-MIME=  | |
 | Encode | =perl-Encode=  | |
 | Error | =perl-Error= | |
@@ -195,6 +198,7 @@ Install =www-servers/apache=, =dev-vcs/rcs=, and =dev-lang/perl=
 | CGI::Session | =dev-perl/CGI-Session= | |
 | Crypt::PasswdMD5 | =dev-perl/Crypt-PasswdMD5= | |
 | Digest::SHA | | Included with perl |
+| Email::Address::XS | =dev-perl/Email-Address-XS= | |
 | Email::MIME | =dev-perl/Email-MIME= | |
 | Error | =dev-perl/Error= | |
 | Encode | | Included with perl |
@@ -257,6 +261,7 @@ Install =apache24=, =rcs=, and =perl5=
 | CGI::Session | =p5-CGI-Session= | |
 | Crypt::PasswdMD5 | =p5-Crypt-PasswdMD5= | |
 | Digest::SHA | =p5-Digest-SHA= | *First shipped in perl 5.9.3 |
+| Email::Address::XS | =p5-Email-Address-XS=  | |
 | Email::MIME | =p5-Email-MIME=  | |
 | Encode | =p5-Encode= | |
 | Error | =p5-Error= | |
@@ -321,6 +326,7 @@ If run as root, the modules will be installed in the System perl.   Otherwise th
 | Crypt::PasswdMD5 | |
 | Digest::SHA | Included with perl |
 | Error | |
+| Email::Address::XS | |
 | Email::MIME | |
 | Encode | |
 | File::Copy::Recursive | |
@@ -361,6 +367,7 @@ Install as needed.
 | Crypt::SMIME | | Optional, used for S/MIME email signing |
 | Crypt::X509 | | Optional, used for S/MIME email signing |
 | Convert::PEM | | Optional, used for S/MIME email signing |
+| Locale::Language | Optional, =Locale::Language= will be removed from the Perl core distribution in 5.28. |
 
 ---++++!! Installation using =cpanminus=
 

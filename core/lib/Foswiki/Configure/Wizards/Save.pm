@@ -211,6 +211,7 @@ sub save {
     }
 
     my %save;
+    my %set = %{ $this->param('set') };
 
     # Clear out the configuration and re-initialize it either
     # with or without the .spec expansion.  This also clears the
@@ -222,8 +223,13 @@ sub save {
         foreach my $key ( @{ $Foswiki::cfg{BOOTSTRAP} } ) {
             eval("(\$save$key)=\$Foswiki::cfg$key=~m/^(.*)\$/");
             ASSERT( !$@, $@ ) if DEBUG;
-            delete $Foswiki::cfg{BOOTSTRAP};
         }
+        delete $Foswiki::cfg{BOOTSTRAP};
+        print STDERR "BOOTSTRAPDIRS set = "
+          . Data::Dumper->Dump( [ $Foswiki::cfg{BOOTSTRAPDIRS} ] )
+          if TRACE_SAVE;
+        %set = ( %set, %{ $Foswiki::cfg{BOOTSTRAPDIRS} } );
+        delete $Foswiki::cfg{BOOTSTRAPDIRS};
 
         %Foswiki::cfg = ();
 
@@ -244,8 +250,10 @@ sub save {
 
     # Get changes from 'set' *without* expanding values. this is
     # a cut-down from Foswiki::Configure::Query::_getSetParams
-    if ( $this->param('set') ) {
-        while ( my ( $k, $v ) = each %{ $this->param('set') } ) {
+    if (%set) {
+        print STDERR "Save set = " . Data::Dumper->Dump( [ \%set ] )
+          if TRACE_SAVE;
+        while ( my ( $k, $v ) = each %set ) {
             my $spec = $root->getValueObject($k);
             eval("\$spec->{old_value} = \$Foswiki::cfg$k") if $spec;
             if ( $spec && defined $v && !ref($v) ) {
@@ -257,7 +265,7 @@ sub save {
                     $reporter->ERROR(
                         "SAVE ABORTED: Could not interpret new value for $k: "
                           . Foswiki::Configure::Reporter::stripStacktrace($@) );
-                    return undef;
+                    return;
                 }
             }
             elsif (TRACE_SAVE) {
@@ -280,7 +288,7 @@ sub save {
                 $reporter->ERROR(
 "SAVE ABORTED: undef given as value for $k, but the spec is not undefok"
                 );
-                return undef;
+                return;
             }
             ASSERT( !$@, $@ ) if DEBUG;
         }
@@ -385,7 +393,7 @@ sub save {
         unlink $backup if ($backup);
         $reporter->NOTE("No changes needed to be made to $lsc");
     }
-    return undef;    # return the report
+    return;    # return the report
 }
 
 # $reporter is set to undef when recursing into a hash below the

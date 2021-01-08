@@ -55,13 +55,16 @@ sub setUrl {
         my $host     = $2;
         if ( $protocol =~ /https/i ) {
             $this->secure(1);
+            $ENV{HTTPS} = 'ON';
         }
         else {
             $this->secure(0);
+            $ENV{HTTPS} = undef;
         }
 
         #print STDERR "setting Host to $host\n";
         $this->header( -name => 'Host', -value => $host );
+        $ENV{HTTP_HOST} = $host;
     }
 
     my @pairs = split /[&;]/, $urlParams;
@@ -89,7 +92,7 @@ __DATA__
 
 Author: Gilmar Santos Jr
 
-Copyright (C) 2008-2010 Foswiki Contributors
+Copyright (C) 2008-2020 Foswiki Contributors
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

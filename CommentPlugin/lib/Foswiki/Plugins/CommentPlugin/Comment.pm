@@ -10,6 +10,7 @@ use Error ':try';
 use Foswiki;
 use Foswiki::Plugins;
 use Foswiki::Store;
+use Foswiki::Plugins::JQueryPlugin ();
 
 use CGI ();
 
@@ -192,6 +193,8 @@ sub prompt {
             $input = $startform . $input . CGI::end_form();
         }
     }
+    Foswiki::Plugins::JQueryPlugin::createPlugin("Comment");
+
     return $input;
 }
 
@@ -342,7 +345,7 @@ sub comment {
                 # Position relative to index'th comment
                 my $idx = 0;
                 unless (
-                    $text =~ s((%COMMENT({.*?})?%.*\n))
+                    $text =~ s((%COMMENT(\{.*?\})?%.*\n))
                           (&_nth($1,\$idx,$position,$index,$output))eg
                   )
                 {
@@ -360,7 +363,7 @@ sub comment {
 
         # remove the index'th comment box
         my $idx = 0;
-        $text =~ s/(%COMMENT({.*?})?%)/_remove_nth($1,\$idx,$remove)/eg;
+        $text =~ s/(%COMMENT(\{.*?\})?%)/_remove_nth($1,\$idx,$remove)/eg;
     }
 
     return ( $meta, $text, $position, $output );
@@ -394,7 +397,7 @@ sub _remove_nth {
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2008-2012 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2008-2020 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 

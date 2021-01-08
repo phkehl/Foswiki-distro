@@ -35,7 +35,7 @@ sub test1 {
     $reporter->NOTE("This is a note");
     $Foswiki::cfg{UnitTestContrib}{Configure}{STRING} = 'ROPE';
     $reporter->CHANGED('{UnitTestContrib}{Configure}{STRING}');
-    return undef;
+    return;
 }
 
 =begin TML
@@ -49,14 +49,14 @@ Test prettified value
 sub format {
     my ( $this, $reporter ) = @_;
     $reporter->CHANGED('{Plugins}{ConfigurePlugin}{Test}{PERL}');
-    return undef;
+    return;
 }
 
 1;
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2014 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2014-2020 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 

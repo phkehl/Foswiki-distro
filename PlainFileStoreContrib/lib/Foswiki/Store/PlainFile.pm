@@ -53,7 +53,8 @@ use warnings;
 use File::Copy            ();
 use File::Copy::Recursive ();
 use Fcntl qw( :DEFAULT :flock );
-use JSON ();
+use Foswiki::ListIterator ();
+use JSON                  ();
 
 use Foswiki::Store ();
 our @ISA = ('Foswiki::Store');
@@ -368,7 +369,6 @@ sub getRevisionHistory {
 
     unless ( _d _historyDir( $meta, $attachment ) ) {
         my @list = ();
-        require Foswiki::ListIterator;
         if ( _e _latestFile( $meta, $attachment ) ) {
             push( @list, 1 );
         }
@@ -497,6 +497,13 @@ sub saveAttachment {
 # Implement Foswiki::Store
 sub saveTopic {
     my ( $this, $meta, $cUID, $options ) = @_;
+
+    if ( $options->{forceinsert}
+        && _e _latestFile($meta) )
+    {
+        die
+"PlainFile: Attempting to save a topic that already exists, and forceinsert specified";
+    }
 
     _saveDamage($meta);
 
@@ -739,7 +746,6 @@ sub eachAttachment {
       grep { !/^[.*_]/ && !/,pfv$/ && ( -f "$ed/$_" ) } readdir($dh);
     closedir($dh);
 
-    require Foswiki::ListIterator;
     return new Foswiki::ListIterator( \@list );
 }
 
@@ -749,7 +755,7 @@ sub eachTopic {
 
     my $dh;
     opendir( $dh, _encode( _getData( $meta->web ), 1 ) )
-      or return ();
+      or return new Foswiki::ListIterator( [] );
 
     # the name filter is used to ensure we don't return filenames
     # that contain illegal characters as topic names.
@@ -759,7 +765,6 @@ sub eachTopic {
       grep { !/$Foswiki::cfg{NameFilter}/ && /\.txt$/ } _readdir($dh);
     closedir($dh);
 
-    require Foswiki::ListIterator;
     return new Foswiki::ListIterator( \@list );
 }
 
@@ -773,27 +778,12 @@ sub eachWeb {
 
     my $dir = $Foswiki::cfg{DataDir};
     $dir .= '/' . $web if defined $web;
-    my @list;
-    my $dh;
 
-    if ( opendir( $dh, _encode( $dir, 1 ) ) ) {
-        @list = map {
-
-            # Tradeoff: correct validation of every web name, which allows
-            # non-web directories to be interleaved, thus:
-            #    Foswiki::Sandbox::untaint(
-            #           $_, \&Foswiki::Sandbox::validateWebName )
-            # versus a simple untaint, much better performance:
-            Foswiki::Sandbox::untaintUnchecked($_)
-          }
-
-          # The _e on the web preferences is used in preference to any
-          # other mechanism for performance. Since the definition
-          # of a Web in this store is "a directory with a
-          # WebPreferences.txt in it", this works.
-          grep { !/\./ && _e "$dir/$_$wptn" } _readdir($dh);
-        closedir($dh);
-    }
+    my @list = map {
+        my $tmp = _decode($_);
+        $tmp =~ s/^.*\/(.*)\/$wptn$/$1/;
+        Foswiki::Sandbox::untaintUnchecked($tmp)
+    } glob("$dir/*/$wptn");
 
     if ($all) {
         my $root = $web ? "$web/" : '';
@@ -806,7 +796,6 @@ sub eachWeb {
         @list = @expandedList;
     }
     @list = sort(@list);
-    require Foswiki::ListIterator;
     return new Foswiki::ListIterator( \@list );
 }
 
@@ -897,7 +886,7 @@ sub getRevisionAtTime {
     my $d;
     unless ( opendir( $d, _encode( $hd, 1 ) ) ) {
         return 1 if ( $time >= ( _stat( _latestFile($meta) ) )[9] );
-        return undef;
+        return;
     }
     my @revs;
     _loadRevs( \@revs, $hd );
@@ -911,7 +900,7 @@ sub getRevisionAtTime {
         return $rev if ( $time >= ( _stat("$hd/$rev") )[9] );
     }
 
-    return undef;
+    return;
 }
 
 # Implement Foswiki::Store
@@ -1324,7 +1313,6 @@ sub eachChange {
     my ( $this, $meta, $since ) = @_;
 
     my $file = "$Foswiki::cfg{DataDir}/" . $meta->web . "/.changes";
-    require Foswiki::ListIterator;
 
     my @changes;
     if ( _r $file ) {

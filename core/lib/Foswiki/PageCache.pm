@@ -224,7 +224,7 @@ sub cachePage {
     $web =~ s/\//./g;
 
     Foswiki::Func::writeDebug("called cachePage($web, $topic)") if TRACE;
-    return undef unless $this->isCacheable( $web, $topic );
+    return unless $this->isCacheable( $web, $topic );
 
     # delete page and all variations if we ask for a refresh copy
     my $refresh = $request->param('refresh') || '';
@@ -250,11 +250,11 @@ sub cachePage {
     my $lastModified = '';
     my $time         = time();
 
+    $data = Foswiki::encode_utf8($data);
+
     unless ($isDirty) {
         $data =~ s/([\t ]?)[ \t]*<\/?(nop|noautolink)\/?>/$1/gis;
 
-        # clean pages are stored utf8-encoded, whether plaintext or zip
-        $data = Foswiki::encode_utf8($data);
         if ( $Foswiki::cfg{HttpCompress} ) {
 
             # Cache compressed page
@@ -292,7 +292,7 @@ sub cachePage {
 
     # store page variation
     Foswiki::Func::writeDebug("PageCache: Stored data") if TRACE;
-    return undef
+    return
       unless $this->setPageVariation( $web, $topic, $variationKey, $variation );
 
     # assert newly autotetected dependencies
@@ -324,7 +324,7 @@ sub getPage {
 
         if ( $session->{users}->isAdmin( $session->{user} ) ) {
             $this->deleteAll();
-            return undef;
+            return;
         }
         else {
             my $session = $Foswiki::Plugins::SESSION;
@@ -350,18 +350,18 @@ sub getPage {
     }
 
     # check cacheability
-    return undef unless $this->isCacheable( $web, $topic );
+    return unless $this->isCacheable( $web, $topic );
 
     # check availability
     my $variationKey = $this->genVariationKey();
 
     my $variation = $this->getPageVariation( $web, $topic, $variationKey );
 
-    # check expiry date of this entry; return undef if it did expire, not
+    # check expiry date of this entry; return if it did expire, not
     # deleted from cache as it will be recomputed during a normal view
     # cycle
-    return undef
-      if defined($variation)
+    return
+         if defined($variation)
       && defined( $variation->{expire} )
       && $variation->{expire} < time();
 
@@ -403,9 +403,16 @@ for the "CACHEABLE" preference variable.
 =cut
 
 sub isCacheable {
-    my ( $this, $web, $topic ) = @_;
+    my ( $this, $web, $topic, $value ) = @_;
 
+    $web =~ s/\//./g;
     my $webTopic = $web . '.' . $topic;
+
+    if ( defined $value ) {
+        Foswiki::Func::writeDebug("forcing isCacheable to $value") if TRACE;
+        $this->{isCacheable}{$webTopic} = $value;
+        return $value;
+    }
 
     my $isCacheable = $this->{isCacheable}{$webTopic};
     return $isCacheable if defined $isCacheable;
@@ -441,8 +448,6 @@ sub isCacheable {
         my $status  = $headers->{Status};
         $isCacheable = 0 if $status && $status eq 401;
     }
-
-    # TODO: give plugins a chance - create a callback to intercept cacheability
 
     #Foswiki::Func::writeDebug("isCacheable=$isCacheable") if TRACE;
     $this->{isCacheable}{$webTopic} = $isCacheable;

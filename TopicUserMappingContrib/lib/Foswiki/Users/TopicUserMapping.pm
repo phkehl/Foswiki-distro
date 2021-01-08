@@ -25,15 +25,19 @@ Subclasses should be named 'XxxxUserMapping' so that configure can find them.
 =cut
 
 package Foswiki::Users::TopicUserMapping;
-use Foswiki::UserMapping ();
-our @ISA = ('Foswiki::UserMapping');
 
 use strict;
 use warnings;
+
+use Foswiki::UserMapping ();
+our @ISA = ('Foswiki::UserMapping');
+
 use Assert;
 use Error qw( :try );
 use Foswiki::ListIterator ();
 use Foswiki::Func         ();
+use Foswiki::Time         ();
+use Foswiki::Users        ();
 
 #use Monitor;
 #Monitor::MonitorMethod('Foswiki::Users::TopicUserMapping');
@@ -101,6 +105,7 @@ sub finish {
     undef $this->{passwords};
     undef $this->{eachGroupMember};
     undef $this->{singleGroupMembers};
+    undef $this->{isGroup};
     $this->SUPER::finish();
 }
 
@@ -296,7 +301,6 @@ sub addUser {
         # add a new user
 
         unless ( defined($password) ) {
-            require Foswiki::Users;
             $password = Foswiki::Users::randomPassword();
         }
 
@@ -352,7 +356,7 @@ sub _maintainUsersTopic {
     }
     else {
 
-        return undef if ( $action eq 'del' );
+        return if ( $action eq 'del' );
 
         # Construct a new users topic from the template
         my $templateTopicObject =
@@ -371,10 +375,8 @@ sub _maintainUsersTopic {
     my $entry = "   * $wikiname - ";
     $entry .= $login . " - " if $login;
 
-    require Foswiki::Time;
     my $today =
-      Foswiki::Time::formatTime( time(), $Foswiki::cfg{DefaultDateFormat},
-        'gmtime' );
+      Foswiki::Time::formatTime( time(), '$day $mon $year', 'gmtime' );
 
     my $user;
 
@@ -743,9 +745,10 @@ See baseclass for documentation
 sub isGroup {
     my ( $this, $user ) = @_;
 
+    return $this->{isGroup}{$user} if defined $this->{isGroup}{$user};
+
     # Groups have the same username as wikiname as canonical name
     return 1 if $user eq $Foswiki::cfg{SuperAdminGroup};
-
     return 0 unless ( $user =~ m/Group$/ );
 
    #actually test for the existance of this group
@@ -757,9 +760,13 @@ sub isGroup {
     my $iterator = $this->eachGroup();
     while ( $iterator->hasNext() ) {
         my $groupname = $iterator->next();
-        return 1 if ( $groupname eq $user );
+        if ( $groupname eq $user ) {
+            $this->{isGroup}{$user} = 1;
+            last;
+        }
     }
-    return 0;
+
+    return $this->{isGroup}{$user};
 }
 
 =begin TML
@@ -1339,7 +1346,7 @@ sub getEmails {
 
 =begin TML
 
----++ ObjectMethod getRegistrationDate($name) -> @emailAddress
+---++ ObjectMethod getRegistrationDate($name) -> $epoch
 
 returns the date this user has registered. 
 
@@ -1628,6 +1635,7 @@ sub _cacheUser {
     ASSERT($wikiname) if DEBUG;
 
     $login ||= $wikiname;
+    $date  ||= time;
 
     #discard users that are the BaseUserMapper's responsibility
     return
@@ -1637,6 +1645,8 @@ sub _cacheUser {
     my $cUID = $this->login2cUID( $login, 1 );
     return unless ($cUID);
     ASSERT($cUID) if DEBUG;
+
+    $date = Foswiki::Time::parseTime($date) unless $date =~ /^\d+$/;
 
     #$this->{U2L}->{$cUID}     = $login;
     $this->{U2W}->{$cUID}     = $wikiname;
@@ -1666,9 +1676,6 @@ sub _getListOfGroups {
     if ( !$this->{groupsList} || $reset ) {
         my $users = $this->{session}->{users};
         $this->{groupsList} = [];
-
-        #create a MetaCache _before_ we do silly things with the session's users
-        $this->{session}->search->metacache();
 
         # Temporarily set the user to admin, otherwise it cannot see groups
         # where %USERSWEB% is protected from view

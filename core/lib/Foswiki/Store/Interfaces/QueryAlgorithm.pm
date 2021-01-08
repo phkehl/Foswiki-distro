@@ -12,7 +12,6 @@ use Foswiki::Search::ResultSet                  ();
 use Foswiki();
 use Foswiki::Func();
 use Foswiki::Meta            ();
-use Foswiki::MetaCache       ();
 use Foswiki::Query::Node     ();
 use Foswiki::Query::HoistREs ();
 use Foswiki::ListIterator();
@@ -337,7 +336,7 @@ sub getField {
         return $data;
     }
 
-    return undef unless $data->topic();
+    return unless $data->topic();
 
     if (MONITOR) {
         print STDERR "----- getField(FIELD value $field)\n";
@@ -364,10 +363,10 @@ sub getField {
 
 sub getForm {
     my ( $this, $node, $data, $formname ) = @_;
-    return undef unless $data->topic();
+    return unless $data->topic();
 
     my $form = $data->get('FORM');
-    return undef unless $form && $formname eq $form->{name};
+    return unless $form && $formname eq $form->{name};
     print STDERR "----- getForm($formname)\n" if MONITOR;
 
     # TODO: This is where multiple form support needs to reside.
